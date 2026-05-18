@@ -32,3 +32,12 @@ DerivedData/
 
 ## Node (pipeline)
 node_modules/
+
+## Python (pipeline agents)
+.venv/
+__pycache__/
+*.pyc
+
+## Secrets & logs
+.env
+*.log

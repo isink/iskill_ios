@@ -11,11 +11,12 @@
     "import:all": "npm run import:antigravity && npm run import:anthropic && npm run import:discover",
     "enrich:skills": "tsx scripts/enrich/enrich-skills.ts",
     "backfill:stars": "tsx scripts/enrich/backfill-github-stars.ts",
-    "backfill:stars:local": "https_proxy=http://127.0.0.1:7890 http_proxy=http://127.0.0.1:7890 npm run backfill:stars",
+    "backfill:stars:local": "NODE_USE_ENV_PROXY=1 https_proxy=http://127.0.0.1:7890 http_proxy=http://127.0.0.1:7890 npm run backfill:stars",
     "reclassify": "tsx scripts/import/reclassify-misc.ts",
     "review:pending": "tsx scripts/review/review-pending.ts",
+    "review:apply": "tsx scripts/review/apply-agent-decision.ts",
     "sync": "npm run import:all && npm run reclassify && npm run enrich:skills",
-    "sync:local": "https_proxy=http://127.0.0.1:7890 http_proxy=http://127.0.0.1:7890 npm run sync"
+    "sync:local": "NODE_USE_ENV_PROXY=1 https_proxy=http://127.0.0.1:7890 http_proxy=http://127.0.0.1:7890 npm run sync"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.47.10",
