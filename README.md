@@ -1,6 +1,7 @@
 # Skiller iOS (SwiftUI)
 
-原生 iOS 重写版本，与 `../ios/` (Expo) 并存，迁移完成后会替换掉它。
+原生 SwiftUI app，是唯一现存版本（旧 Expo 项目 `../ios/` 已删除）。
+项目现状、设计背景与运维约定见上层目录 `../CLAUDE.md`（单一真相源）。
 
 ## 快速开始
 
@@ -37,5 +38,5 @@ Skiller/
 
 ## 数据来源
 
-直连原 Supabase 项目（`gphynosbfjcyexhkgctf.supabase.co`），表结构与 Expo 端共用，
-import 脚本 (`../ios/scripts/`) 不变。
+直连 Supabase 项目（`gphynosbfjcyexhkgctf.supabase.co`）。import / enrich 脚本
+现在在 `pipeline/`（与 app 解耦，app 只读 Supabase），见 `pipeline/README.md`。
