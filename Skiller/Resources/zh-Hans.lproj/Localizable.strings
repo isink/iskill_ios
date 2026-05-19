@@ -139,3 +139,16 @@
 
 // RepoGroupCard
 "%@ · %lld skills" = "%@ · %lld 个 skill";
+
+// Consent gate (CN compliance)
+"welcome_consent_title" = "在使用前，请阅读并同意以下条款";
+"consent_body_intro" = "我们仅在你同意后采集必要信息（如设备标识用于统计与广告）。你可随时在系统设置中撤回。";
+"consent_read_prefix" = "我已阅读并同意";
+"consent_and" = "和";
+"consent_agree" = "同意并继续";
+"consent_decline" = "暂不同意";
+"consent_decline_title" = "需要同意才能使用";
+"consent_decline_message" = "Skiller 需要你同意隐私政策与用户协议后才能提供服务。你可以稍后再决定。";
+"consent_decline_back" = "返回";
+"privacy_policy" = "隐私政策";
+"terms_of_use" = "用户协议";

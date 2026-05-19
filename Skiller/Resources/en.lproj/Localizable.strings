@@ -139,3 +139,16 @@
 
 // RepoGroupCard
 "%@ · %lld skills" = "%@ · %lld skills";
+
+// Consent gate (CN compliance)
+"welcome_consent_title" = "Please read and agree to the terms before using";
+"consent_body_intro" = "We only collect necessary data (e.g. device identifier for analytics and ads) after you agree. You can withdraw consent anytime in Settings.";
+"consent_read_prefix" = "I have read and agree to the";
+"consent_and" = "and";
+"consent_agree" = "Agree and Continue";
+"consent_decline" = "Not now";
+"consent_decline_title" = "Consent required";
+"consent_decline_message" = "Skiller needs your agreement to the Privacy Policy and Terms of Use to provide service. You can decide later.";
+"consent_decline_back" = "Back";
+"privacy_policy" = "Privacy Policy";
+"terms_of_use" = "Terms of Use";
