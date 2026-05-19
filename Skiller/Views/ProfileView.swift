@@ -439,27 +439,37 @@ struct ProfileView: View {
 
     // MARK: Privacy footnote
     private var privacyFootnote: some View {
-        HStack(spacing: 16) {
-            Spacer()
-            Link(destination: URL(string: "https://isink.github.io/skiller/privacy.html")!) {
-                Text("Privacy Policy")
-                    .font(.system(size: 11))
-                    .foregroundStyle(Color.textSubtle)
-                    .underline(true, color: Color.textSubtle.opacity(0.5))
+        VStack(spacing: 8) {
+            HStack(spacing: 16) {
+                Spacer()
+                Link(destination: ComplianceConfig.privacyURL) {
+                    Text("Privacy Policy")
+                        .font(.system(size: 11))
+                        .foregroundStyle(Color.textSubtle)
+                        .underline(true, color: Color.textSubtle.opacity(0.5))
+                }
+                Link(destination: ComplianceConfig.termsURL) {
+                    Text("Terms of Use")
+                        .font(.system(size: 11))
+                        .foregroundStyle(Color.textSubtle)
+                        .underline(true, color: Color.textSubtle.opacity(0.5))
+                }
+                Link(destination: URL(string: "mailto:handwanly@gmail.com?subject=Skiller%20Feedback")!) {
+                    Text("Feedback")
+                        .font(.system(size: 11))
+                        .foregroundStyle(Color.textSubtle)
+                        .underline(true, color: Color.textSubtle.opacity(0.5))
+                }
+                Spacer()
             }
-            Link(destination: URL(string: "https://isink.github.io/skiller/terms.html")!) {
-                Text("Terms of Use")
-                    .font(.system(size: 11))
-                    .foregroundStyle(Color.textSubtle)
-                    .underline(true, color: Color.textSubtle.opacity(0.5))
+
+            if !ComplianceConfig.icpFilingNumber.isEmpty {
+                Link(destination: ComplianceConfig.icpQueryURL) {
+                    Text(ComplianceConfig.icpFilingNumber)
+                        .font(.system(size: 10))
+                        .foregroundStyle(Color.textSubtle.opacity(0.7))
+                }
             }
-            Link(destination: URL(string: "mailto:handwanly@gmail.com?subject=Skiller%20Feedback")!) {
-                Text("Feedback")
-                    .font(.system(size: 11))
-                    .foregroundStyle(Color.textSubtle)
-                    .underline(true, color: Color.textSubtle.opacity(0.5))
-            }
-            Spacer()
         }
         .padding(.top, 16)
     }
