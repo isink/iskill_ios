@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>隐私政策 / Privacy Policy — Skiller</title>
+  <style>
+    :root { color-scheme: dark light; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", Roboto, sans-serif;
+      max-width: 720px;
+      margin: 40px auto;
+      padding: 0 20px;
+      line-height: 1.7;
+      color: #1a1a1a;
+      background: #fafafa;
+    }
+    @media (prefers-color-scheme: dark) {
+      body { color: #e6e6e6; background: #0f0f12; }
+      a { color: #d97757; }
+      h1, h2, h3 { color: #f4f4f6; }
+      hr { border-color: #2a2a30; }
+      th, td { border-color: #2a2a30; }
+      .lang-sep { border-color: #2a2a30; }
+    }
+    h1 { font-size: 28px; margin-bottom: 4px; }
+    h2 { font-size: 19px; margin-top: 32px; }
+    h3 { font-size: 16px; margin-top: 20px; }
+    .updated { color: #888; font-size: 13px; }
+    a { color: #c9582a; }
+    ul, ol { padding-left: 20px; }
+    li { margin: 6px 0; }
+    code { background: rgba(127,127,127,0.15); padding: 2px 6px; border-radius: 4px; font-size: 13px; }
+    table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 14px; }
+    th, td { border: 1px solid #ddd; padding: 8px 10px; text-align: left; vertical-align: top; }
+    th { background: rgba(127,127,127,0.08); }
+    .lang-sep { margin: 56px 0 40px; border: none; border-top: 2px solid #ddd; }
+    .note { font-size: 13px; color: #888; }
+  </style>
+</head>
+<body>
+
+<!-- ==================== 中文版 ==================== -->
+
+<h1>隐私政策</h1>
+<p class="updated">最近更新：2026 年 5 月 19 日 · 生效日期：2026 年 5 月 19 日</p>
+
+<p>本隐私政策说明 Skiller（以下称"本应用""我们"）在你使用本 iOS 应用时如何收集、使用、存储、共享和保护你的个人信息。我们坚持<strong>最小必要</strong>原则，并对每一项数据处理保持透明。请在使用本应用前完整阅读本政策。</p>
+
+<h2>1. 个人信息处理者与联系方式</h2>
+<p>本应用由个人开发者<strong>文瀚冬（Handong Wen）</strong>开发与运营。如对本政策或你的个人信息有任何疑问、投诉或权利请求，可通过电子邮件联系我们：<a href="mailto:handwanly@gmail.com">handwanly@gmail.com</a>。本应用的工业和信息化部备案编号在 App 内"我的"页面底部展示。</p>
+
+<h2>2. 我们如何征得你的同意</h2>
+<p>你<strong>首次启动本应用</strong>时，会先看到隐私同意提示。<strong>在你明确点击"同意并继续"之前，本应用不会收集任何个人信息，也不会启动广告 SDK、不会发起任何网络请求。</strong>仅在你同意后，下述功能与数据处理才会启用。你可以选择不同意，此时本应用不提供服务。</p>
+
+<h2>3. 我们收集的信息及用途</h2>
+
+<table>
+  <tr><th>信息类型</th><th>具体内容</th><th>处理目的</th><th>是否必需</th></tr>
+  <tr>
+    <td>设备标识符</td>
+    <td>设备供应商标识（identifierForVendor，<code>IDFV</code>）</td>
+    <td>统计应用打开次数，用于了解整体使用情况、排查问题。该标识不可用于跨 App 追踪。</td>
+    <td>同意后自动收集</td>
+  </tr>
+  <tr>
+    <td>账号信息（仅在你登录时）</td>
+    <td><strong>GitHub 登录：</strong>GitHub 用户名、昵称、头像 URL，以及一个短期 OAuth 令牌（仅在你主动提交技能时用于列出你的公开仓库）。<br><strong>苹果登录：</strong>Apple 中转的电子邮件地址（或私密代发地址）及你首次登录时选择共享的昵称。</td>
+    <td>创建并维护你的账号、识别你的提交、提供登录态。</td>
+    <td>仅登录时</td>
+  </tr>
+  <tr>
+    <td>提交数据</td>
+    <td>你提交技能时所选 GitHub 仓库地址、一个匿名用户标识、提交时间戳。</td>
+    <td>审核与收录你提交的技能。</td>
+    <td>仅提交时</td>
+  </tr>
+  <tr>
+    <td>本地数据（不离开你的设备）</td>
+    <td>你收藏的技能、最近浏览记录。</td>
+    <td>提供收藏与浏览历史功能。使用 Apple SwiftData 仅存储在你本机，<strong>不上传服务器</strong>。</td>
+    <td>本地</td>
+  </tr>
+</table>
+
+<p><strong>我们不会收集：</strong>地理位置；通讯录、相册或其他设备内容；不集成第三方统计/埋点 SDK；不收集用于个性化广告追踪的标识符（详见第 5 节）。</p>
+
+<h2>4. 第三方服务与 SDK 清单</h2>
+<p>本应用依赖以下第三方服务运行，每一方均有其独立的隐私政策：</p>
+<table>
+  <tr><th>第三方</th><th>用途</th><th>可能处理的信息</th><th>隐私政策</th></tr>
+  <tr>
+    <td>Supabase（Supabase, Inc.）</td>
+    <td>承载账号鉴权系统与技能数据库（服务器位于中国大陆境外）。</td>
+    <td>账号信息、提交数据、设备标识统计记录。</td>
+    <td><a href="https://supabase.com/privacy">supabase.com/privacy</a></td>
+  </tr>
+  <tr>
+    <td>GitHub（GitHub, Inc.）</td>
+    <td>提供 GitHub 第三方登录与公开仓库列表。</td>
+    <td>你的 GitHub 账号公开信息、授权令牌。</td>
+    <td><a href="https://docs.github.com/site-policy/privacy-policies/github-general-privacy-statement">GitHub 隐私声明</a></td>
+  </tr>
+  <tr>
+    <td>Apple（Apple Inc.）</td>
+    <td>提供"通过 Apple 登录"。</td>
+    <td>Apple 中转邮箱、昵称。</td>
+    <td><a href="https://www.apple.com/legal/privacy/">apple.com/legal/privacy</a></td>
+  </tr>
+  <tr>
+    <td>Google AdMob（Google LLC）</td>
+    <td>展示横幅广告（非个性化模式）。</td>
+    <td>设备类型、粗略地区等有限的上下文信息（用于合规与反欺诈）。</td>
+    <td><a href="https://policies.google.com/privacy">policies.google.com/privacy</a></td>
+  </tr>
+</table>
+
+<h2>5. 关于广告</h2>
+<p>本应用通过 Google AdMob 展示横幅广告，并已明确选择<strong>非个性化广告</strong>（<code>npa=1</code>）：广告不会基于你的浏览历史或兴趣进行定向；我们不申请 App Tracking Transparency（跨 App 追踪）权限；AdMob 仍可能处理有限的上下文数据（如设备类型、粗略地区）以遵守各地区广告法规并防止欺诈，详见上方 AdMob 政策。广告 SDK 仅在你同意本政策后才会启动。</p>
+
+<h2>6. 个人信息的跨境传输（重要）</h2>
+<p>本应用的账号鉴权与技能数据库由 Supabase（Supabase, Inc.，美国）提供，相关服务器位于<strong>中华人民共和国境外（美国）</strong>。这意味着你的账号信息、提交数据及设备标识统计记录会被传输至并存储于境外服务器。</p>
+<p>境外接收方为 Supabase, Inc.，所在国家为美国，接收目的为提供账号鉴权与数据存储服务，处理的个人信息类型限于本政策第 3 节所列项目。<strong>当你点击"同意并继续"时，即表示你已知悉并单独同意上述个人信息跨境传输。</strong>我们仅传输实现功能所必需的最小信息。</p>
+
+<h2>7. 个人信息的保存期限</h2>
+<ul>
+  <li><strong>账号数据：</strong>在你的账号存续期间保留；账号注销后 30 天内删除。</li>
+  <li><strong>已通过审核的提交：</strong>作为公开技能目录的一部分长期保留，但在你注销账号后与你的用户标识解除关联。</li>
+  <li><strong>设备标识统计记录：</strong>用于汇总统计，按需保留并定期清理。</li>
+  <li><strong>本地数据：</strong>保存在你的设备上，直至你删除本应用。</li>
+</ul>
+
+<h2>8. 你的权利</h2>
+<p>在适用法律范围内，你有权访问、更正、复制、删除我们持有的你的个人信息，撤回同意，以及注销账号：</p>
+<ol>
+  <li><strong>注销账号：</strong>打开 App → "我的" → 点击头像卡片下方的"删除账号" → 确认。该操作将永久删除你的账号凭据并解除你与已收录提交的关联，<strong>不可撤销</strong>；本机收藏不受影响。</li>
+  <li><strong>撤回同意：</strong>你可注销账号并停止使用、卸载本应用以撤回同意；如需删除仍保留在服务器上的数据，可通过下方邮箱联系我们。</li>
+  <li><strong>访问、更正、复制：</strong>通过下方邮箱向我们提出请求，我们将在合理期限内响应。</li>
+</ol>
+
+<h2>9. 未成年人保护</h2>
+<p>本应用不面向 14 周岁以下儿童，我们不会在知情情况下收集儿童个人信息。如你为儿童监护人且发现儿童向我们提供了个人信息，请通过下方邮箱联系我们，我们将及时删除。若你为未满 18 周岁的未成年人，请在监护人同意并指导下使用本应用。</p>
+
+<h2>10. 信息安全</h2>
+<p>我们通过传输加密（HTTPS）等技术与管理措施保护你的个人信息安全。但请注意，任何网络传输与存储均无法保证绝对安全。</p>
+
+<h2>11. 本政策的更新</h2>
+<p>我们可能不时更新本政策。重大变更将通过更新本页顶部的"最近更新"日期体现；涉及你权益的重大变更，我们将以应用内提示等显著方式告知。变更后你继续使用本应用即视为接受更新后的政策。</p>
+
+<h2>12. 投诉与联系</h2>
+<p>关于本政策或你个人信息的任何问题、投诉，请发送邮件至 <a href="mailto:handwanly@gmail.com">handwanly@gmail.com</a>。如你认为我们的个人信息处理行为损害了你的合法权益，且与我们协商无法解决，你也可以向网信、电信等主管部门投诉举报。</p>
+
+<hr class="lang-sep">
+
+<!-- ==================== English version ==================== -->
+
+<h1>Privacy Policy</h1>
+<p class="updated">Last updated: May 19, 2026 · Effective: May 19, 2026</p>
+
+<p>This Privacy Policy describes how Skiller ("we", "the app") collects, uses, stores, shares, and protects your information when you use our iOS application. We follow a <strong>data minimization</strong> principle and aim to be transparent about every processing activity. Please read this policy in full before using the app.</p>
+
+<h2>1. Who Processes Your Data &amp; Contact</h2>
+<p>This app is developed and operated by an individual developer, <strong>Handong Wen</strong>. For any questions, complaints, or rights requests regarding this policy or your personal information, contact us at <a href="mailto:handwanly@gmail.com">handwanly@gmail.com</a>. The app's MIIT (ICP) filing number is displayed at the bottom of the in-app Profile page.</p>
+
+<h2>2. How We Obtain Your Consent</h2>
+<p>On <strong>first launch</strong>, you are shown a privacy consent screen. <strong>Until you explicitly tap "Agree and Continue", the app collects no personal information, starts no advertising SDK, and makes no network requests.</strong> The features and processing below are enabled only after you agree. If you decline, the app does not provide its service.</p>
+
+<h2>3. Information We Collect &amp; Why</h2>
+<table>
+  <tr><th>Category</th><th>Details</th><th>Purpose</th><th>When</th></tr>
+  <tr>
+    <td>Device identifier</td>
+    <td>Vendor identifier (<code>identifierForVendor</code> / IDFV)</td>
+    <td>Count app opens to understand overall usage and troubleshoot. Cannot be used for cross-app tracking.</td>
+    <td>After consent</td>
+  </tr>
+  <tr>
+    <td>Account info (only if you sign in)</td>
+    <td><strong>GitHub:</strong> username, display name, avatar URL, and a short-lived OAuth token (used only to list your public repos when you choose to submit a Skill).<br><strong>Apple:</strong> Apple-relayed email (or private relay address) and the display name you choose to share at first sign-in.</td>
+    <td>Create/maintain your account, attribute submissions, keep you signed in.</td>
+    <td>On sign-in</td>
+  </tr>
+  <tr>
+    <td>Submission data</td>
+    <td>The GitHub repo URL you select, an anonymous user ID, and timestamps.</td>
+    <td>Review and list your submitted Skill.</td>
+    <td>On submission</td>
+  </tr>
+  <tr>
+    <td>On-device data (never leaves your device)</td>
+    <td>Your favorited and recently viewed Skills.</td>
+    <td>Provide favorites and history. Stored locally via Apple SwiftData; <strong>not uploaded</strong>.</td>
+    <td>Local</td>
+  </tr>
+</table>
+<p><strong>We do NOT collect:</strong> location; contacts, photos, or other device content; no third-party analytics SDKs; no advertising tracking identifier (see Section 5).</p>
+
+<h2>4. Third-Party Services &amp; SDKs</h2>
+<ul>
+  <li><strong>Supabase</strong> (Supabase, Inc.) — hosts authentication and the Skills database on servers <strong>outside mainland China</strong>. <a href="https://supabase.com/privacy">supabase.com/privacy</a></li>
+  <li><strong>GitHub</strong> (GitHub, Inc.) — OAuth sign-in and public repo listing. <a href="https://docs.github.com/site-policy/privacy-policies/github-general-privacy-statement">GitHub Privacy Statement</a></li>
+  <li><strong>Apple</strong> (Apple Inc.) — Sign in with Apple. <a href="https://www.apple.com/legal/privacy/">apple.com/legal/privacy</a></li>
+  <li><strong>Google AdMob</strong> (Google LLC) — non-personalized banner ads. <a href="https://policies.google.com/privacy">policies.google.com/privacy</a></li>
+</ul>
+
+<h2>5. Advertising</h2>
+<p>We display banner ads via Google AdMob in <strong>non-personalized mode</strong> (<code>npa=1</code>): ads are not targeted using your browsing history or interests; we do not request App Tracking Transparency; AdMob may still process limited contextual data (device type, approximate region) for regional ad compliance and fraud prevention. The ad SDK starts only after you accept this policy.</p>
+
+<h2>6. Cross-Border Data Transfer (Important)</h2>
+<p>Authentication and the Skills database are provided by Supabase, Inc. (United States), with servers located <strong>outside the People's Republic of China (in the United States)</strong>. Your account info, submission data, and device-identifier usage records are transferred to and stored on overseas servers. The overseas recipient is Supabase, Inc. (United States), for the purpose of authentication and data storage, limited to the data listed in Section 3. <strong>By tapping "Agree and Continue", you acknowledge and separately consent to this cross-border transfer.</strong> We transfer only the minimum necessary.</p>
+
+<h2>7. Data Retention</h2>
+<ul>
+  <li><strong>Account data:</strong> kept while your account exists; deleted within 30 days of account deletion.</li>
+  <li><strong>Approved submissions:</strong> retained as part of the public Skills directory, detached from your user identifier upon account deletion.</li>
+  <li><strong>Device-identifier usage records:</strong> kept for aggregate statistics and periodically purged.</li>
+  <li><strong>On-device data:</strong> stays on your device until you delete the app.</li>
+</ul>
+
+<h2>8. Your Rights</h2>
+<ol>
+  <li><strong>Delete account:</strong> Profile → "Delete account" below your profile card → confirm. Permanently deletes your credentials and detaches you from approved submissions; cannot be undone; local favorites are unaffected.</li>
+  <li><strong>Withdraw consent:</strong> delete your account, stop using, and uninstall the app; email us to remove any server-side data that remains.</li>
+  <li><strong>Access / correct / export:</strong> email us; we respond within a reasonable time.</li>
+</ol>
+
+<h2>9. Children's Privacy</h2>
+<p>The app is not directed at children under 14, and we do not knowingly collect their personal information. Guardians who believe a child has provided us data should contact us for prompt deletion. Minors under 18 should use the app under guardian consent and guidance.</p>
+
+<h2>10. Security</h2>
+<p>We protect your information with measures such as encrypted transmission (HTTPS). However, no method of transmission or storage is absolutely secure.</p>
+
+<h2>11. Changes</h2>
+<p>We may update this policy from time to time. Material changes are reflected by the "Last updated" date and, where they affect your rights, communicated prominently in-app. Continued use after changes means acceptance.</p>
+
+<h2>12. Complaints &amp; Contact</h2>
+<p>Questions or complaints: <a href="mailto:handwanly@gmail.com">handwanly@gmail.com</a>. If you believe our processing harms your lawful rights and cannot be resolved with us, you may also complain to the competent cyberspace/telecom authorities.</p>
+
+</body>
+</html>
