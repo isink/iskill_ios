@@ -98,8 +98,10 @@ struct SkillDetailView: View {
                 header(skill)
                 installBlock(skill)
                 metaBlock(skill)
-                BannerAdView()
-                    .padding(.top, 8)
+                if ComplianceConfig.adsEnabled {
+                    BannerAdView()
+                        .padding(.top, 8)
+                }
                 if let md = skill.skillMdContent, !md.isEmpty {
                     markdownBlock(md)
                 }
