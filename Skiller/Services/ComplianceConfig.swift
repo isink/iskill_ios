@@ -3,8 +3,8 @@ import Foundation
 /// 中国区 App Store 合规相关常量的单一来源。
 ///
 /// 隐私/条款页托管在已 ICP 备案、大陆可稳定访问的域名 duskecho.com
-/// （黔ICP备2025060250号-2，主体 文瀚冬，阿里云成都 ECS 8.137.115.144）的
-/// /skiller/ 子路径下；该子路径同受站点备案覆盖，无需额外备案。
+/// （黔ICP备2025060250号-2，阿里云成都 ECS 8.137.115.144）的 /skiller/
+/// 子路径下；该子路径同受站点备案覆盖，无需额外备案。
 /// 不要用 GitHub Pages（isink.github.io）——它在大陆被 DNS 污染。
 enum ComplianceConfig {
 

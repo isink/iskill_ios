@@ -38,10 +38,10 @@
 **Files:** 无代码改动。
 
 - [ ] **Step 1: 确认备案主体（已具备）**
-  主体 文瀚冬，ICP 主体备案号 `黔ICP备2025060250号`，已备案域名 `duskecho.com`（网站备案号 `黔ICP备2025060250号-2`，管局审核通过），阿里云成都 ECS `8.137.115.144`。App 备案复用此主体与域名/云资源。
+  主体见阿里云备案控制台，ICP 主体备案号 `黔ICP备2025060250号`，已备案域名 `duskecho.com`（网站备案号 `黔ICP备2025060250号-2`，管局审核通过），阿里云成都 ECS `8.137.115.144`。App 备案复用此主体与域名/云资源。
 
 - [ ] **Step 2: 在阿里云备案控制台提交 App 备案**
-  备案控制台 → 我的 ICP 备案信息 → 互联网信息服务 → 切到 **「App」标签页**（与「网站」并列）→ 新增 App 备案。填写：app 名称（Skiller）、Bundle ID `com.iskill.app`、应用分类、复用主体 文瀚冬、关联域名 `duskecho.com` / ECS `8.137.115.144`。
+  备案控制台 → 我的 ICP 备案信息 → 互联网信息服务 → 切到 **「App」标签页**（与「网站」并列）→ 新增 App 备案。填写：app 名称（Skiller）、Bundle ID `com.iskill.app`、应用分类、复用现有主体、关联域名 `duskecho.com` / ECS `8.137.115.144`。
   Expected: 生成一条"待审核"的 App 备案订单。
 
 - [ ] **Step 3: 等待管局审核并记录备案号**
@@ -76,7 +76,7 @@ import Foundation
 enum ComplianceConfig {
 
     /// 已备案站点上托管隐私/条款页的基地址，无结尾斜杠。
-    /// duskecho.com 已完成 ICP 备案（黔ICP备2025060250号-2，主体 文瀚冬，
+    /// duskecho.com 已完成 ICP 备案（黔ICP备2025060250号-2，
     /// 阿里云成都 ECS 8.137.115.144），子路径同受该备案覆盖，无需额外备案。
     /// 部署 docs/compliance/*.html 到该路径后即生效（见 Task 6）。
     static let legalBase = "https://duskecho.com/skiller"
