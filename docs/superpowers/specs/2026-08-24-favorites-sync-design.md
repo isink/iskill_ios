@@ -208,6 +208,8 @@ SwiftUI 页面不再直接构造 `FavoritesStore` 或自行修改 SwiftData，�
 5. 更新 `delete_my_account()`：先删除调用者的收藏，再删除调用者的 Auth 用户。
 6. 保持函数 `security definer`、固定 `search_path`、撤销 public 执行权，只向 authenticated 授予执行权。
 
+同时把相同的收藏权限、RLS policy 和账号删除语义同步到 `pipeline/supabase/schema.sql`，确保全新 Supabase 项目与迁移后的现有项目行为一致。
+
 迁移必须幂等；重复执行不应产生重复策略或权限错误。上线顺序是先应用数据库迁移并验证 RLS，再发布使用同步功能的 App 版本。
 
 ## 界面行为
@@ -258,6 +260,7 @@ SwiftUI 页面不再直接构造 `FavoritesStore` 或自行修改 SwiftData，�
 - `Skiller/Views/ProfileView.swift`
 - `Skiller/Resources/en.lproj/Localizable.strings`
 - `Skiller/Resources/zh-Hans.lproj/Localizable.strings`
+- `pipeline/supabase/schema.sql`
 - `project.yml`
 
 `Favorite.swift` 保持游客模型语义和存储结构，避免破坏现有用户数据。
