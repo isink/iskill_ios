@@ -199,7 +199,7 @@ SwiftUI 页面不再直接构造 `FavoritesStore` 或自行修改 SwiftData，�
 
 ## 数据库与权限
 
-新增 `pipeline/supabase/migrations/011_favorites_sync.sql`：
+新增 `pipeline/supabase/migrations/014_favorites_sync.sql`：
 
 1. 启用 `public.favorites` RLS。
 2. 撤销 `anon` 对收藏表的全部权限。
@@ -243,7 +243,7 @@ SwiftUI 页面不再直接构造 `FavoritesStore` 或自行修改 SwiftData，�
 - `Skiller/Models/PendingFavoriteMutation.swift`
 - `Skiller/Services/FavoritesRemoteAPI.swift`
 - `Skiller/Services/FavoriteSyncCoordinator.swift`
-- `pipeline/supabase/migrations/011_favorites_sync.sql`
+- `pipeline/supabase/migrations/014_favorites_sync.sql`
 - `SkillerTests/FavoriteSyncCoordinatorTests.swift`
 - `SkillerTests/FavoritesStoreTests.swift`
 
