@@ -11,6 +11,7 @@ struct ProfileView: View {
     @State private var appleNonce: String? = nil
     @State private var showDeleteConfirm = false
     @State private var deleting = false
+    @State private var showGitHubLogin = false
 
     private var topCategorySlug: String? {
         guard !recents.isEmpty else { return nil }
@@ -24,10 +25,6 @@ struct ProfileView: View {
                 brandHeader
                 accountCard
                 footprintCard
-
-                section(title: "Contribute") {
-                    submitRow
-                }
 
                 section(title: "Resources") {
                     linkRow(
@@ -91,7 +88,7 @@ struct ProfileView: View {
 
     private var signedOutCard: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Sign in to recommend GitHub repos")
+            Text("Sign in to sync favorites across devices")
                 .font(.system(size: 13))
                 .foregroundStyle(Color.textSubtle)
 
@@ -112,29 +109,50 @@ struct ProfileView: View {
             .clipShape(RoundedRectangle(cornerRadius: 12))
 
             Button {
-                Task { await signIn() }
+                withAnimation(.easeInOut(duration: 0.2)) { showGitHubLogin.toggle() }
             } label: {
-                HStack(spacing: 8) {
-                    if signingIn {
-                        ProgressView().tint(.black)
-                    } else {
-                        Image("GitHubMark")
-                            .renderingMode(.template)
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 16, height: 16)
-                    }
-                    Text(signingIn ? "Signing in…" : "Sign in with GitHub")
-                        .font(.system(size: 14, weight: .semibold))
+                HStack(spacing: 4) {
+                    Spacer()
+                    Text("Other sign-in options")
+                        .font(.system(size: 12))
+                        .foregroundStyle(Color.textSubtle)
+                    Image(systemName: showGitHubLogin ? "chevron.up" : "chevron.down")
+                        .font(.system(size: 10, weight: .semibold))
+                        .foregroundStyle(Color.textSubtle)
+                    Spacer()
                 }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 12)
-                .foregroundStyle(.black)
-                .background(.white)
-                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .padding(.vertical, 4)
+                .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
-            .disabled(signingIn)
+
+            if showGitHubLogin {
+                Button {
+                    Task { await signIn() }
+                } label: {
+                    HStack(spacing: 8) {
+                        if signingIn {
+                            ProgressView().tint(.black)
+                        } else {
+                            Image("GitHubMark")
+                                .renderingMode(.template)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 16, height: 16)
+                        }
+                        Text(signingIn ? "Signing in…" : "Sign in with GitHub")
+                            .font(.system(size: 14, weight: .semibold))
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 12)
+                    .foregroundStyle(.black)
+                    .background(.white)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                }
+                .buttonStyle(.plain)
+                .disabled(signingIn)
+                .transition(.opacity.combined(with: .move(edge: .top)))
+            }
 
             if let msg = authError {
                 Text(msg)
@@ -212,7 +230,7 @@ struct ProfileView: View {
             }
             Button("Cancel", role: .cancel) {}
         } message: {
-            Text("Will permanently delete your Skiller account info. Local favorites are kept; approved submissions remain but are detached from your account. This cannot be undone.")
+            Text("Will permanently delete your Skiller account info. Local favorites are kept. This cannot be undone.")
         }
     }
 
@@ -408,33 +426,6 @@ struct ProfileView: View {
             .fill(Color.borderSubtle)
             .frame(height: 1)
             .padding(.leading, 50)
-    }
-
-    private var submitRow: some View {
-        NavigationLink(value: SkillRoute.submit) {
-            HStack(spacing: 12) {
-                Image(systemName: "paperplane.fill")
-                    .font(.system(size: 16))
-                    .foregroundStyle(Color.brand)
-                    .frame(width: 22)
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("Submit Skill")
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundStyle(Color.textPrimary)
-                    Text("Recommend a GitHub repo for inclusion")
-                        .font(.system(size: 11))
-                        .foregroundStyle(Color.textSubtle)
-                }
-                Spacer()
-                Image(systemName: "chevron.right")
-                    .font(.system(size: 12))
-                    .foregroundStyle(Color.textSubtle)
-            }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 14)
-            .contentShape(Rectangle())
-        }
-        .buttonStyle(.plain)
     }
 
     // MARK: Privacy footnote

@@ -71,12 +71,6 @@ extension SkillsCache {
         }
     }
 
-    func communitySkills(limit: Int = 10, force: Bool = false) -> (stale: [Skill]?, fresh: Task<[Skill]?, Never>) {
-        swr(key: "community:\(limit)", ttl: 120, force: force) {
-            try await SkillsAPI.fetchCommunitySkills(limit: limit)
-        }
-    }
-
     func latestBatch(force: Bool = false) -> (stale: [Skill]?, fresh: Task<[Skill]?, Never>) {
         swr(key: "latestBatch", ttl: 120, force: force) {
             try await SkillsAPI.fetchLatestBatch()

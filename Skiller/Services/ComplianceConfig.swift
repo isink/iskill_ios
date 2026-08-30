@@ -19,7 +19,7 @@ enum ComplianceConfig {
     /// App 备案通过后填入；为空时备案行自动隐藏，开发构建照常编译。
     /// 注意：必须是 App 备案号（形如 `黔ICP备2025060250号-3A`），
     /// 不是网站备案号 `黔ICP备2025060250号-2`。
-    static let icpFilingNumber = ""
+    static let icpFilingNumber = "黔ICP备2025060250号-3A"
 
     /// 工信部备案公共查询入口（备案号点击跳转）。
     static let icpQueryURL = URL(string: "https://beian.miit.gov.cn/")!

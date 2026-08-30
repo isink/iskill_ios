@@ -1,7 +1,7 @@
 # Skiller iOS (SwiftUI)
 
 原生 SwiftUI app，是唯一现存版本（旧 Expo 项目 `../ios/` 已删除）。
-项目现状、设计背景与运维约定见上层目录 `../CLAUDE.md`（单一真相源）。
+项目现状、设计背景与运维约定见仓库根目录的 `CLAUDE.md`（单一真相源）。
 
 ## 快速开始
 

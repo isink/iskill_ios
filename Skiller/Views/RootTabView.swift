@@ -41,8 +41,6 @@ private struct NavigationRouter<Content: View>: View {
                         SkillDetailView(skillId: id)
                     case .allNew:
                         NewSkillsView()
-                    case .submit:
-                        SubmitSkillView()
                     }
                 }
                 .toolbarBackground(Color.bg, for: .navigationBar)

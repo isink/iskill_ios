@@ -42,17 +42,6 @@ enum SkillsAPI {
             .value
     }
 
-    static func fetchCommunitySkills(limit: Int = 10) async throws -> [Skill] {
-        try await supabase
-            .from("skills")
-            .select(LIST_COLUMNS)
-            .contains("tags", value: ["user-submission"])
-            .order("created_at", ascending: false)
-            .limit(limit)
-            .execute()
-            .value
-    }
-
     static func fetchNewSkills(limit: Int = 10) async throws -> [Skill] {
         let since = ISO8601DateFormatter().string(
             from: Date().addingTimeInterval(-30 * 24 * 60 * 60)
@@ -245,30 +234,7 @@ enum SkillsAPI {
         return HomeStats(total: total ?? 0, newToday: newToday ?? 0, lastSyncAt: lastDate)
     }
 
-    // MARK: - Submissions
-
-    static func submitSkill(
-        githubUrl: String,
-        email: String?,
-        note: String?,
-        userId: UUID?
-    ) async throws {
-        struct Row: Encodable {
-            let github_url: String
-            let submitter_email: String?
-            let note: String?
-            let submitter_user_id: UUID?
-        }
-        try await supabase
-            .from("submissions")
-            .insert(Row(
-                github_url: githubUrl,
-                submitter_email: email,
-                note: note,
-                submitter_user_id: userId
-            ))
-            .execute()
-    }
+    // MARK: - Reports
 
     static func submitReport(
         skillId: String,

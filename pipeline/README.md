@@ -7,7 +7,7 @@ Decoupled from the iOS app — the app reads from Supabase, doesn't run this pip
 ## Quick start
 
 ```bash
-cd /Users/wenhandong/Desktop/dev/Skiller/native/pipeline
+cd /Users/wenhandong/Projects/active/Skiller/pipeline
 npm install
 
 # 一把梭（需要本地代理 127.0.0.1:7890）

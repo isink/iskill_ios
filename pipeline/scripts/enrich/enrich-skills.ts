@@ -46,7 +46,7 @@ async function enrichOne(skill: SkillRow): Promise<Enrichment> {
   const mdBody = skill.skill_md_content
     ? skill.skill_md_content.replace(/^---[\s\S]*?---\n?/, "").trimStart()
     : "";
-  const context = mdBody.slice(0, 800);
+  const context = Array.from(mdBody).slice(0, 800).join("");
 
   const prompt = `你是一个技术文案专家，帮助用户了解 Claude AI 的技能插件，输出双语内容。
 

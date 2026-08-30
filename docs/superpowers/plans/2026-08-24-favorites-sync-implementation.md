@@ -28,7 +28,7 @@
 ### Task 0: Create a Safe Implementation Worktree With the Current Baseline
 
 **Files:**
-- Read: current tracked working tree under `/Users/wenhandong/Desktop/开发/Skiller/native`
+- Read: current tracked working tree under `/Users/wenhandong/Projects/active/Skiller`
 - Create outside repository: `/Users/wenhandong/.codex/worktrees/Skiller/favorites-sync`
 - Create temporary patch: `/tmp/skiller-favorites-sync-existing.patch`
 
@@ -51,7 +51,7 @@ Expected: instructions require a safe location, ignore verification when relevan
 Run:
 
 ```bash
-cd /Users/wenhandong/Desktop/开发/Skiller/native
+cd /Users/wenhandong/Projects/active/Skiller
 git status --short --branch
 git ls-files --others --exclude-standard
 ```
@@ -63,7 +63,7 @@ Expected: the known tracked modifications/deletion are present and the untracked
 Run:
 
 ```bash
-cd /Users/wenhandong/Desktop/开发/Skiller/native
+cd /Users/wenhandong/Projects/active/Skiller
 git diff HEAD --binary > /tmp/skiller-favorites-sync-existing.patch
 mkdir -p /Users/wenhandong/.codex/worktrees/Skiller
 git worktree add /Users/wenhandong/.codex/worktrees/Skiller/favorites-sync -b feat/favorites-sync
@@ -77,7 +77,7 @@ Expected: the new worktree is on `feat/favorites-sync`; the original checkout st
 Run:
 
 ```bash
-cd /Users/wenhandong/Desktop/开发/Skiller/native
+cd /Users/wenhandong/Projects/active/Skiller
 git diff HEAD --binary > /tmp/skiller-favorites-sync-original.patch
 git -C /Users/wenhandong/.codex/worktrees/Skiller/favorites-sync diff --cached HEAD --binary > /tmp/skiller-favorites-sync-worktree.patch
 cmp /tmp/skiller-favorites-sync-original.patch /tmp/skiller-favorites-sync-worktree.patch
@@ -92,7 +92,7 @@ Run:
 ```bash
 git -C /Users/wenhandong/.codex/worktrees/Skiller/favorites-sync commit -m "chore: snapshot current Skiller app baseline"
 git -C /Users/wenhandong/.codex/worktrees/Skiller/favorites-sync status --short --branch
-git -C /Users/wenhandong/Desktop/开发/Skiller/native status --short --branch
+git -C /Users/wenhandong/Projects/active/Skiller status --short --branch
 ```
 
 Expected: feature worktree is clean; original checkout retains its pre-existing dirty files unchanged.
@@ -1354,7 +1354,7 @@ Run:
 ```bash
 git status --short --branch
 git log --oneline --decorate master..HEAD
-git -C /Users/wenhandong/Desktop/开发/Skiller/native status --short --branch
+git -C /Users/wenhandong/Projects/active/Skiller status --short --branch
 ```
 
 Expected: feature worktree is clean after task commits; original checkout still contains its pre-existing dirty changes and no feature merge.

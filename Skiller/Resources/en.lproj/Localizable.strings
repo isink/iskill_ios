@@ -48,16 +48,14 @@
 "Search skills, tags, authors" = "Search skills, tags, authors";
 "Latest" = "Latest";
 "Loading failed, check your network" = "Loading failed, check your network";
-"Community contributions" = "Community contributions";
-"Be the first contributor" = "Be the first contributor";
-"Submit your GitHub skill repo, it'll show here after review" = "Submit your GitHub skill repo, it'll show here after review";
 "Found %lld results for \"%@\"" = "Found %lld results for \"%@\"";
 "No matching results" = "No matching results";
 "Try other keywords" = "Try other keywords";
 
 // ProfileView
 "Discover and install Claude AI skills" = "Discover and install Claude AI skills";
-"Sign in to recommend GitHub repos" = "Sign in to recommend GitHub repos";
+"Sign in to sync favorites across devices" = "Sign in to sync favorites across devices";
+"Other sign-in options" = "Other sign-in options";
 "Signing in…" = "Signing in…";
 "Sign in with GitHub" = "Sign in with GitHub";
 "Sign-in failed, try again later" = "Sign-in failed, try again later";
@@ -65,42 +63,19 @@
 "Deleting…" = "Deleting…";
 "Delete account" = "Delete account";
 "Delete account?" = "Delete account?";
-"Will permanently delete your Skiller account info. Local favorites are kept; approved submissions remain but are detached from your account. This cannot be undone." = "Will permanently delete your Skiller account info. Local favorites are kept; approved submissions remain but are detached from your account. This cannot be undone.";
+"Will permanently delete your Skiller account info. Local favorites are kept. This cannot be undone." = "Will permanently delete your Skiller account info. Local favorites are kept. This cannot be undone.";
 "Delete failed, try again later or contact handwanly@gmail.com" = "Delete failed, try again later or contact handwanly@gmail.com";
 "My footprint" = "My footprint";
 "Favorited" = "Favorited";
 "Browsed" = "Browsed";
 "Most viewed" = "Most viewed";
-"Contribute" = "Contribute";
 "Resources" = "Resources";
 "Anthropic Official Skills" = "Anthropic Official Skills";
 "Claude Skills Documentation" = "Claude Skills Documentation";
-"Submit Skill" = "Submit Skill";
-"Recommend a GitHub repo for inclusion" = "Recommend a GitHub repo for inclusion";
 "Privacy Policy" = "Privacy Policy";
 "Terms of Use" = "Terms of Use";
 "Feedback" = "Feedback";
 "Apple User" = "Apple User";
-
-// SubmitSkillView
-"Submit this repo?" = "Submit this repo?";
-"%@\nWill appear in Skiller after review" = "%@\nWill appear in Skiller after review";
-"Recommend Your Skill" = "Recommend Your Skill";
-"Pick one of your GitHub repos, we'll review and include it" = "Pick one of your GitHub repos, we'll review and include it";
-"GitHub account required" = "GitHub account required";
-"Please sign out and sign in with GitHub to submit a repo" = "Please sign out and sign in with GitHub to submit a repo";
-"Sign out current account" = "Sign out current account";
-"Sign in first" = "Sign in first";
-"Sign in to pick a Skill from your GitHub repos" = "Sign in to pick a Skill from your GitHub repos";
-"No public repos found" = "No public repos found";
-"Your GitHub account has no public repos yet" = "Your GitHub account has no public repos yet";
-"Submission Guidelines" = "Submission Guidelines";
-"Repo is publicly accessible, README explains its purpose" = "Repo is publicly accessible, README explains its purpose";
-"Follows Claude Skill spec, contains at least one SKILL.md" = "Follows Claude Skill spec, contains at least one SKILL.md";
-"No malicious code, copyright violation, or inappropriate content" = "No malicious code, copyright violation, or inappropriate content";
-"GitHub auth token missing, please sign in again" = "GitHub auth token missing, please sign in again";
-"Failed to fetch repos, check your network and try again" = "Failed to fetch repos, check your network and try again";
-"Submission failed, please try again later" = "Submission failed, please try again later";
 
 // ReportSkillSheet
 "Report" = "Report";

@@ -48,16 +48,14 @@
 "Search skills, tags, authors" = "搜索技能、标签、作者";
 "Latest" = "最新收录";
 "Loading failed, check your network" = "加载失败，请检查网络";
-"Community contributions" = "社区贡献";
-"Be the first contributor" = "成为第一个贡献者";
-"Submit your GitHub skill repo, it'll show here after review" = "提交你的 GitHub skill 仓库，审核通过后展示在这里";
 "Found %lld results for \"%@\"" = "找到 %lld 个关于 \"%@\" 的结果";
 "No matching results" = "没有匹配结果";
 "Try other keywords" = "试试其他关键词";
 
 // ProfileView
 "Discover and install Claude AI skills" = "发现并安装 Claude AI 技能";
-"Sign in to recommend GitHub repos" = "登录后可推荐 GitHub 仓库";
+"Sign in to sync favorites across devices" = "登录后可在多设备间同步收藏";
+"Other sign-in options" = "其他登录方式";
 "Signing in…" = "登录中…";
 "Sign in with GitHub" = "使用 GitHub 登录";
 "Sign-in failed, try again later" = "登录失败，请稍后重试";
@@ -65,42 +63,19 @@
 "Deleting…" = "删除中…";
 "Delete account" = "删除账号";
 "Delete account?" = "删除账号？";
-"Will permanently delete your Skiller account info. Local favorites are kept; approved submissions remain but are detached from your account. This cannot be undone." = "将永久删除你的 Skiller 账号信息。本地收藏不会被删除；已通过审核的提交记录会保留但与你的账号解除关联。此操作不可撤销。";
+"Will permanently delete your Skiller account info. Local favorites are kept. This cannot be undone." = "将永久删除你的 Skiller 账号信息。本地收藏不会被删除。此操作不可撤销。";
 "Delete failed, try again later or contact handwanly@gmail.com" = "删除失败，请稍后重试或联系 handwanly@gmail.com";
 "My footprint" = "我的足迹";
 "Favorited" = "已收藏";
 "Browsed" = "浏览过";
 "Most viewed" = "最常看";
-"Contribute" = "贡献";
 "Resources" = "社区";
 "Anthropic Official Skills" = "Anthropic 官方技能库";
 "Claude Skills Documentation" = "Claude Skills 文档";
-"Submit Skill" = "提交 Skill";
-"Recommend a GitHub repo for inclusion" = "推荐一个 GitHub 仓库给我们收录";
 "Privacy Policy" = "隐私政策";
 "Terms of Use" = "使用条款";
 "Feedback" = "意见反馈";
 "Apple User" = "Apple 用户";
-
-// SubmitSkillView
-"Submit this repo?" = "提交这个仓库？";
-"%@\nWill appear in Skiller after review" = "%@\n审核通过后会出现在 Skiller 里";
-"Recommend Your Skill" = "推荐你的 Skill";
-"Pick one of your GitHub repos, we'll review and include it" = "从你的 GitHub 仓库里挑一个，我们会人工审核后收录";
-"GitHub account required" = "提交需要 GitHub 账号";
-"Please sign out and sign in with GitHub to submit a repo" = "请退出当前账号后改用 GitHub 登录，再来提交仓库";
-"Sign out current account" = "退出当前账号";
-"Sign in first" = "请先登录";
-"Sign in to pick a Skill from your GitHub repos" = "登录后才能从你的 GitHub 仓库里挑选要推荐的 Skill";
-"No public repos found" = "没有找到公开仓库";
-"Your GitHub account has no public repos yet" = "你的 GitHub 账号下还没有公开仓库";
-"Submission Guidelines" = "收录条件";
-"Repo is publicly accessible, README explains its purpose" = "仓库公开可访问，README 写明用途";
-"Follows Claude Skill spec, contains at least one SKILL.md" = "符合 Claude Skill 规范，至少含一个 SKILL.md";
-"No malicious code, copyright violation, or inappropriate content" = "不含恶意代码、版权侵犯或不当内容";
-"GitHub auth token missing, please sign in again" = "未拿到 GitHub 授权 Token，请重新登录后再试";
-"Failed to fetch repos, check your network and try again" = "拉取仓库失败，请检查网络后重试";
-"Submission failed, please try again later" = "提交失败，请稍后重试";
 
 // ReportSkillSheet
 "Report" = "举报";
