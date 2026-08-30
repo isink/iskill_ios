@@ -23,6 +23,18 @@
 - Deploy the database migration before releasing an App build that writes `public.favorites`.
 - Use test-driven development: run each focused test once while failing for the stated reason, implement the minimum behavior, then run it passing.
 
+## Binding Execution Corrections (2026-08-31)
+
+These corrections supersede conflicting snippets later in this plan. They close issues found during the pre-implementation review.
+
+- Every `PendingFavoriteMutation` has a `revision: String` regenerated whenever the desired state changes. `PendingFavoriteChange` carries that revision. Successful uploads and failure annotations may update or delete a pending row only when both `recordKey` and `revision` still match the sent snapshot. This prevents an older in-flight request from deleting a newer opposite toggle.
+- Add a coordinator test that pauses an upload, toggles the same Skill to the opposite state, releases the old request, and proves the newer mutation remains pending and wins the rendered state.
+- Migration `014_favorites_sync.sql` must use `create table if not exists` for the complete `public.favorites` shape before applying grants and RLS. It must then fail explicitly if the existing table lacks `user_id`, `skill_id`, or the composite primary key; it must not silently reinterpret incompatible production data.
+- GitHub login requests only `read:user`. Remove the now-unused provider token from `UserIdentity`; the removed submission flow is not a reason to retain `public_repo`.
+- Before enabling sync in a release, update both language sections of `docs/compliance/privacy.html` so account favorites, overseas Supabase storage, retention, and account deletion match the implemented behavior. Correct `PrivacyInfo.xcprivacy` independently as part of release hardening.
+- The known untracked `AGENTS.md`, `CLAUDE.md`, `outputs/`, and screenshot directory remain in the original checkout and are intentionally excluded from the tracked baseline snapshot.
+- This implementation may validate migration `014` locally and inspect/dry-run the linked migration state, but it does not push a production database migration or publish an App build. Those external mutations remain a separate release operation.
+
 ---
 
 ### Task 0: Create a Safe Implementation Worktree With the Current Baseline
