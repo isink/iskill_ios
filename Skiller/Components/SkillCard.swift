@@ -1,21 +1,12 @@
-import SwiftData
 import SwiftUI
 
 struct SkillCard: View {
     let skill: Skill
     var showInstall: Bool = false
 
-    @Environment(\.modelContext) private var ctx
-    @Query private var favorites: [Favorite]
+    @EnvironmentObject private var favoriteSync: FavoriteSyncCoordinator
 
-    init(skill: Skill, showInstall: Bool = false) {
-        self.skill = skill
-        self.showInstall = showInstall
-        let id = skill.id
-        _favorites = Query(filter: #Predicate { $0.skillId == id })
-    }
-
-    private var isFavorited: Bool { !favorites.isEmpty }
+    private var isFavorited: Bool { favoriteSync.favoriteIDs.contains(skill.id) }
 
     private var chips: [String] {
         let useCases = skill.localizedUseCases
@@ -126,7 +117,7 @@ struct SkillCard: View {
     }
 
     private func toggleFavorite() {
-        FavoritesStore(ctx).toggle(skill.id)
+        favoriteSync.toggle(skill.id)
     }
 
     private func copyInstall() {

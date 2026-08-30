@@ -1,6 +1,5 @@
 import Foundation
 import SwiftData
-import SwiftUI
 
 enum FavoriteScope: Equatable, Sendable {
     case unknown
@@ -18,15 +17,6 @@ final class FavoritesStore {
 
     init(_ context: ModelContext) {
         self.context = context
-    }
-
-    func isFavorite(_ skillId: String) -> Bool {
-        (try? favoriteIDs(in: .guest).contains(skillId)) == true
-    }
-
-    // TODO: Remove when every favorite button routes through FavoriteSyncCoordinator.
-    func toggle(_ skillId: String) {
-        _ = try? toggle(skillId, in: .guest)
     }
 
     func favoriteIDs(in scope: FavoriteScope) throws -> Set<String> {

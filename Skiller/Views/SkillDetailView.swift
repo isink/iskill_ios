@@ -5,7 +5,7 @@ import SwiftUI
 struct SkillDetailView: View {
     let skillId: String
     @Environment(\.modelContext) private var ctx
-    @Query private var favorites: [Favorite]
+    @EnvironmentObject private var favoriteSync: FavoriteSyncCoordinator
     @State private var skill: Skill?
     @State private var loading = true
     @State private var selectedAgent: AgentId = .claude
@@ -27,13 +27,7 @@ struct SkillDetailView: View {
         func command(_ slug: String) -> String { "\(rawValue) skill install \(slug)" }
     }
 
-    init(skillId: String) {
-        self.skillId = skillId
-        let id = skillId
-        _favorites = Query(filter: #Predicate { $0.skillId == id })
-    }
-
-    private var isFavorited: Bool { !favorites.isEmpty }
+    private var isFavorited: Bool { favoriteSync.favoriteIDs.contains(skillId) }
 
     private var supportedAgents: [AgentId] {
         guard let skill else { return [.claude] }
@@ -267,7 +261,7 @@ struct SkillDetailView: View {
     }
 
     private func toggleFav() {
-        FavoritesStore(ctx).toggle(skillId)
+        favoriteSync.toggle(skillId)
     }
 
     @MainActor

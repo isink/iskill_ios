@@ -63,7 +63,7 @@
 "Deleting…" = "删除中…";
 "Delete account" = "删除账号";
 "Delete account?" = "删除账号？";
-"Will permanently delete your Skiller account info. Local favorites are kept. This cannot be undone." = "将永久删除你的 Skiller 账号信息。本地收藏不会被删除。此操作不可撤销。";
+"Will permanently delete your Skiller account and synced favorites. Guest favorites and other accounts stay on this device. This cannot be undone." = "将永久删除你的 Skiller 账号及已同步收藏。本机游客收藏和其他账号数据不受影响。此操作不可撤销。";
 "Delete failed, try again later or contact handwanly@gmail.com" = "删除失败，请稍后重试或联系 handwanly@gmail.com";
 "My footprint" = "我的足迹";
 "Favorited" = "已收藏";
@@ -76,6 +76,16 @@
 "Terms of Use" = "使用条款";
 "Feedback" = "意见反馈";
 "Apple User" = "Apple 用户";
+"Favorites synced" = "收藏已同步";
+"Syncing favorites…" = "正在同步收藏…";
+"Favorites pending sync: %lld" = "%lld 项收藏待同步";
+"Favorite sync failed — retry" = "收藏同步失败，点此重试";
+"Some favorites are waiting to sync" = "部分收藏正在等待同步";
+"Retry sync" = "重试同步";
+"Favorite sync failed" = "收藏同步失败";
+"Could not save favorites" = "无法保存收藏";
+"Could not load favorites" = "无法读取收藏";
+"Sign in before deleting your account" = "请先登录再删除账号";
 
 // ReportSkillSheet
 "Report" = "举报";

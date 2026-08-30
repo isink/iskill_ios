@@ -4,7 +4,7 @@ import SwiftUI
 
 struct ProfileView: View {
     @EnvironmentObject private var auth: AuthService
-    @Query private var favorites: [Favorite]
+    @EnvironmentObject private var favoriteSync: FavoriteSyncCoordinator
     @Query private var recents: [RecentView]
     @State private var signingIn = false
     @State private var authError: String? = nil
@@ -212,6 +212,8 @@ struct ProfileView: View {
                 .disabled(deleting)
             }
 
+            favoriteSyncStatus
+
             if let msg = authError {
                 Text(msg)
                     .font(.system(size: 11))
@@ -230,7 +232,38 @@ struct ProfileView: View {
             }
             Button("Cancel", role: .cancel) {}
         } message: {
-            Text("Will permanently delete your Skiller account info. Local favorites are kept. This cannot be undone.")
+            Text("Will permanently delete your Skiller account and synced favorites. Guest favorites and other accounts stay on this device. This cannot be undone.")
+        }
+    }
+
+    @ViewBuilder
+    private var favoriteSyncStatus: some View {
+        if favoriteSync.isSyncing {
+            Label("Syncing favorites…", systemImage: "arrow.triangle.2.circlepath")
+                .foregroundStyle(Color.textSubtle)
+        } else if favoriteSync.pendingCount > 0 {
+            Button {
+                Task { await favoriteSync.sync() }
+            } label: {
+                Label(
+                    String(
+                        format: String(localized: "Favorites pending sync: %lld"),
+                        Int64(favoriteSync.pendingCount)
+                    ),
+                    systemImage: "exclamationmark.arrow.triangle.2.circlepath"
+                )
+            }
+            .foregroundStyle(Color.brand)
+        } else if favoriteSync.lastSyncError != nil {
+            Button {
+                Task { await favoriteSync.sync() }
+            } label: {
+                Label("Favorite sync failed — retry", systemImage: "exclamationmark.triangle")
+            }
+            .foregroundStyle(Color.brand)
+        } else {
+            Label("Favorites synced", systemImage: "checkmark.icloud")
+                .foregroundStyle(Color.textSubtle)
         }
     }
 
@@ -239,7 +272,8 @@ struct ProfileView: View {
         deleting = true
         authError = nil
         do {
-            try await auth.deleteAccount()
+            let deletedUserId = try await auth.deleteAccount()
+            try favoriteSync.clearLocalAccountData(userId: deletedUserId.uuidString)
         } catch {
             print("Delete account failed: \(error)")
             authError = String(localized: "Delete failed, try again later or contact handwanly@gmail.com")
@@ -341,7 +375,7 @@ struct ProfileView: View {
             }
 
             HStack(spacing: 0) {
-                stat(value: "\(favorites.count)", label: String(localized: "Favorited"))
+                stat(value: "\(favoriteSync.favoriteIDs.count)", label: String(localized: "Favorited"))
                 statDivider
                 stat(value: "\(recents.count)", label: String(localized: "Browsed"))
                 statDivider

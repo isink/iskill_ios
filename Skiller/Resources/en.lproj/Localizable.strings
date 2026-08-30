@@ -63,7 +63,7 @@
 "Deleting…" = "Deleting…";
 "Delete account" = "Delete account";
 "Delete account?" = "Delete account?";
-"Will permanently delete your Skiller account info. Local favorites are kept. This cannot be undone." = "Will permanently delete your Skiller account info. Local favorites are kept. This cannot be undone.";
+"Will permanently delete your Skiller account and synced favorites. Guest favorites and other accounts stay on this device. This cannot be undone." = "Will permanently delete your Skiller account and synced favorites. Guest favorites and other accounts stay on this device. This cannot be undone.";
 "Delete failed, try again later or contact handwanly@gmail.com" = "Delete failed, try again later or contact handwanly@gmail.com";
 "My footprint" = "My footprint";
 "Favorited" = "Favorited";
@@ -76,6 +76,16 @@
 "Terms of Use" = "Terms of Use";
 "Feedback" = "Feedback";
 "Apple User" = "Apple User";
+"Favorites synced" = "Favorites synced";
+"Syncing favorites…" = "Syncing favorites…";
+"Favorites pending sync: %lld" = "Favorites pending sync: %lld";
+"Favorite sync failed — retry" = "Favorite sync failed — retry";
+"Some favorites are waiting to sync" = "Some favorites are waiting to sync";
+"Retry sync" = "Retry sync";
+"Favorite sync failed" = "Favorite sync failed";
+"Could not save favorites" = "Could not save favorites";
+"Could not load favorites" = "Could not load favorites";
+"Sign in before deleting your account" = "Sign in before deleting your account";
 
 // ReportSkillSheet
 "Report" = "Report";
