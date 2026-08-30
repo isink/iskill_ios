@@ -6,6 +6,7 @@ import UIKit
 @main
 struct SkillerApp: App {
     @StateObject private var auth = AuthService.shared
+    @StateObject private var favoriteSync = FavoriteSyncCoordinator()
     @AppStorage("privacyConsentAccepted") private var consentAccepted = false
 
     var body: some Scene {
@@ -14,7 +15,11 @@ struct SkillerApp: App {
                 if consentAccepted {
                     RootTabView()
                         .environmentObject(auth)
-                        .task { await auth.bootstrap() }
+                        .environmentObject(favoriteSync)
+                        .task {
+                            startServicesAfterConsent()
+                            await auth.bootstrap()
+                        }
                         .onOpenURL { url in
                             Task { await auth.handle(url: url) }
                         }
@@ -22,7 +27,10 @@ struct SkillerApp: App {
                             NotificationCenter.default.publisher(
                                 for: UIApplication.didBecomeActiveNotification)
                         ) { _ in
-                            Task { await recordAppOpen() }
+                            Task {
+                                await favoriteSync.sync()
+                                await recordAppOpen()
+                            }
                         }
                 } else {
                     ConsentGateView {
@@ -33,7 +41,13 @@ struct SkillerApp: App {
             }
             .preferredColorScheme(.dark)
         }
-        .modelContainer(for: [Favorite.self, LastSeen.self, RecentView.self])
+        .modelContainer(for: [
+            Favorite.self,
+            AccountFavorite.self,
+            PendingFavoriteMutation.self,
+            LastSeen.self,
+            RecentView.self,
+        ])
     }
 
     /// 仅在用户同意后调用：启动广告 SDK。

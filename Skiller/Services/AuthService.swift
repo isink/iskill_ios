@@ -12,6 +12,17 @@ final class AuthService: ObservableObject {
         case unknown
         case signedOut
         case signedIn(UserIdentity)
+
+        var favoriteScope: FavoriteScope {
+            switch self {
+            case .unknown:
+                return .unknown
+            case .signedOut:
+                return .guest
+            case let .signedIn(identity):
+                return .account(identity.userId.uuidString)
+            }
+        }
     }
 
     struct UserIdentity: Equatable {
@@ -21,7 +32,6 @@ final class AuthService: ObservableObject {
         let displayName: String
         let login: String
         let avatarUrl: URL?
-        let providerToken: String?
     }
 
     @Published private(set) var state: State = .unknown
@@ -55,7 +65,7 @@ final class AuthService: ObservableObject {
         try await supabase.auth.signInWithOAuth(
             provider: .github,
             redirectTo: Self.redirectURL,
-            scopes: "read:user public_repo"
+            scopes: "read:user"
         )
     }
 
@@ -73,9 +83,18 @@ final class AuthService: ObservableObject {
     /// Deletes the current user's auth.users row via a SECURITY DEFINER RPC
     /// (gated on auth.uid()), then signs out locally. Required by App Store
     /// guideline 5.1.1(v).
-    func deleteAccount() async throws {
+    @discardableResult
+    func deleteAccount() async throws -> UUID {
+        guard case let .signedIn(identity) = state else {
+            throw AuthServiceError.notSignedIn
+        }
         try await supabase.rpc("delete_my_account").execute()
-        try? await supabase.auth.signOut()
+        do {
+            try await supabase.auth.signOut()
+        } catch {
+            state = .signedOut
+        }
+        return identity.userId
     }
 
     /// Called from SceneDelegate / onOpenURL to complete OAuth.
@@ -116,14 +135,14 @@ final class AuthService: ObservableObject {
         let identity: UserIdentity
         switch provider {
         case .github:
-            identity = makeGitHubIdentity(user: user, session: session)
+            identity = makeGitHubIdentity(user: user)
         case .apple:
-            identity = makeAppleIdentity(user: user, session: session)
+            identity = makeAppleIdentity(user: user)
         }
         state = .signedIn(identity)
     }
 
-    private func makeGitHubIdentity(user: User, session: Session) -> UserIdentity {
+    private func makeGitHubIdentity(user: User) -> UserIdentity {
         let meta = user.userMetadata
         let metaLogin = meta["user_name"]?.stringValue ?? meta["preferred_username"]?.stringValue
         let emailLogin = user.email?.split(separator: "@").first.map(String.init)
@@ -136,12 +155,11 @@ final class AuthService: ObservableObject {
             provider: .github,
             displayName: displayName,
             login: login,
-            avatarUrl: avatar,
-            providerToken: session.providerToken
+            avatarUrl: avatar
         )
     }
 
-    private func makeAppleIdentity(user: User, session: Session) -> UserIdentity {
+    private func makeAppleIdentity(user: User) -> UserIdentity {
         let meta = user.userMetadata
         let emailLogin = user.email?.split(separator: "@").first.map(String.init)
         let login = emailLogin ?? "apple_user"
@@ -152,8 +170,18 @@ final class AuthService: ObservableObject {
             provider: .apple,
             displayName: displayName,
             login: login,
-            avatarUrl: nil,
-            providerToken: nil
+            avatarUrl: nil
         )
+    }
+}
+
+enum AuthServiceError: LocalizedError {
+    case notSignedIn
+
+    var errorDescription: String? {
+        switch self {
+        case .notSignedIn:
+            return String(localized: "Sign in before deleting your account")
+        }
     }
 }

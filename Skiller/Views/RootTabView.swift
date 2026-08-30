@@ -1,6 +1,10 @@
+import SwiftData
 import SwiftUI
 
 struct RootTabView: View {
+    @Environment(\.modelContext) private var modelContext
+    @EnvironmentObject private var auth: AuthService
+    @EnvironmentObject private var favoriteSync: FavoriteSyncCoordinator
     @State private var selection: Tab = .home
     @State private var exploreCategory: String? = nil
 
@@ -25,6 +29,13 @@ struct RootTabView: View {
                 .tag(Tab.profile)
         }
         .tint(Color.brand)
+        .task {
+            favoriteSync.configure(context: modelContext)
+            await favoriteSync.activate(auth.state.favoriteScope)
+        }
+        .onChange(of: auth.state) { _, state in
+            Task { await favoriteSync.activate(state.favoriteScope) }
+        }
     }
 }
 
