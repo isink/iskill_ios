@@ -169,5 +169,19 @@ targets:
       - package: GoogleMobileAds
         product: GoogleMobileAds
     scheme:
-      testTargets: []
+      testTargets:
+        - SkillerTests
       gatherCoverageData: false
+
+  SkillerTests:
+    type: bundle.unit-test
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - path: SkillerTests
+    dependencies:
+      - target: Skiller
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.iskill.app.tests
+        GENERATE_INFOPLIST_FILE: YES
