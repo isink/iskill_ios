@@ -5,11 +5,17 @@ import UIKit
 /// SwiftUI wrapper around Google Mobile Ads `BannerView`. Uses anchored
 /// adaptive banner sizing (height auto-derived from device width).
 struct BannerAdView: View {
+    @EnvironmentObject private var adConsent: AdConsentService
+
     var body: some View {
-        GeometryReader { geo in
-            BannerRepresentable(width: geo.size.width)
+        Group {
+            if adConsent.canRequestAds {
+                GeometryReader { geo in
+                    BannerRepresentable(width: geo.size.width)
+                }
+                .frame(height: BannerAdView.height(for: UIScreen.main.bounds.width))
+            }
         }
-        .frame(height: BannerAdView.height(for: UIScreen.main.bounds.width))
     }
 
     static func height(for width: CGFloat) -> CGFloat {
@@ -26,7 +32,7 @@ private struct BannerRepresentable: UIViewRepresentable {
         banner.adUnitID = AdConfig.bannerUnitID
         banner.rootViewController = topViewController()
         let request = Request()
-        // Non-personalized ads — keeps us out of ATT scope.
+        // Reinforce non-personalized treatment for this request.
         let extras = Extras()
         extras.additionalParameters = ["npa": "1"]
         request.register(extras)

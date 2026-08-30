@@ -8,33 +8,11 @@ struct SkillDetailView: View {
     @EnvironmentObject private var favoriteSync: FavoriteSyncCoordinator
     @State private var skill: Skill?
     @State private var loading = true
-    @State private var selectedAgent: AgentId = .claude
-    @State private var copiedCommand = false
+    @State private var copiedSource = false
     @State private var copiedRaw = false
     @State private var showReportSheet = false
 
-    enum AgentId: String, CaseIterable, Hashable {
-        case claude, codex, cursor
-
-        var label: String {
-            switch self {
-            case .claude: return "Claude"
-            case .codex:  return "Codex"
-            case .cursor: return "Cursor"
-            }
-        }
-
-        func command(_ slug: String) -> String { "\(rawValue) skill install \(slug)" }
-    }
-
     private var isFavorited: Bool { favoriteSync.favoriteIDs.contains(skillId) }
-
-    private var supportedAgents: [AgentId] {
-        guard let skill else { return [.claude] }
-        let tagSet = Set(skill.tags)
-        let found = AgentId.allCases.filter { tagSet.contains($0.rawValue) }
-        return found.isEmpty ? [.claude] : found
-    }
 
     var body: some View {
         Group {
@@ -56,9 +34,9 @@ struct SkillDetailView: View {
                         .foregroundStyle(isFavorited ? Color.brand : Color.textMuted)
                 }
             }
-            if let skill {
+            if let sourceURL = skill?.githubRepositoryURL {
                 ToolbarItem(placement: .topBarTrailing) {
-                    ShareLink(item: skill.githubUrl) {
+                    ShareLink(item: sourceURL) {
                         Image(systemName: "square.and.arrow.up")
                             .foregroundStyle(Color.textMuted)
                     }
@@ -90,8 +68,7 @@ struct SkillDetailView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
                 header(skill)
-                installBlock(skill)
-                metaBlock(skill)
+                sourceBlock(skill)
                 if ComplianceConfig.adsEnabled {
                     BannerAdView()
                         .padding(.top, 8)
@@ -142,47 +119,43 @@ struct SkillDetailView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 
-    private func installBlock(_ skill: Skill) -> some View {
-        let agents = supportedAgents
-        let active = agents.contains(selectedAgent) ? selectedAgent : agents[0]
-        let command = active.command(skill.slug)
-        return VStack(alignment: .leading, spacing: 12) {
-            Text("Install Command")
+    private func sourceBlock(_ skill: Skill) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Source Repository")
                 .font(.system(size: 13, weight: .semibold))
                 .foregroundStyle(Color.textSubtle)
 
-            if agents.count > 1 {
-                HStack(spacing: 8) {
-                    ForEach(agents, id: \.self) { a in
-                        Button { selectedAgent = a } label: {
-                            Text(a.label)
-                                .font(.system(size: 12, weight: .medium))
-                                .foregroundStyle(active == a ? Color.textPrimary : Color.textSubtle)
-                                .padding(.horizontal, 12).padding(.vertical, 6)
-                                .background(active == a ? Color.bgElevated : Color.clear)
-                                .overlay(Capsule().strokeBorder(active == a ? Color.borderDefault : Color.borderSubtle, lineWidth: 1))
-                                .clipShape(Capsule())
-                        }
-                        .buttonStyle(.plain)
-                    }
-                }
-            }
+            Text("Review the repository instructions before installing third-party code.")
+                .font(.system(size: 13))
+                .foregroundStyle(Color.textMuted)
 
-            Button { copyCommand(command) } label: {
-                HStack {
-                    Text(command)
-                        .font(.system(size: 13, design: .monospaced))
-                        .foregroundStyle(Color.textPrimary)
-                        .lineLimit(1)
+            if let sourceURL = skill.githubRepositoryURL {
+                HStack(spacing: 12) {
+                    Link(destination: sourceURL) {
+                        Label("View on GitHub", systemImage: "arrow.up.right.square")
+                            .font(.system(size: 14, weight: .medium))
+                            .foregroundStyle(Color.brand)
+                    }
                     Spacer()
-                    Image(systemName: copiedCommand ? "checkmark.circle.fill" : "doc.on.doc")
-                        .foregroundStyle(copiedCommand ? Color.accentGreen : Color.brand)
+                    Button { copySource(sourceURL) } label: {
+                        Label(
+                            copiedSource ? "Copied" : "Copy Link",
+                            systemImage: copiedSource ? "checkmark.circle.fill" : "doc.on.doc"
+                        )
+                        .font(.system(size: 13))
+                        .foregroundStyle(copiedSource ? Color.accentGreen : Color.textMuted)
+                    }
+                    .buttonStyle(.plain)
                 }
-                .padding(.horizontal, 14).padding(.vertical, 12)
+                .padding(14)
                 .background(Color.bgElevated)
                 .overlay(RoundedRectangle(cornerRadius: 12).strokeBorder(Color.borderDefault, lineWidth: 1))
                 .clipShape(RoundedRectangle(cornerRadius: 12))
-            }.buttonStyle(.plain)
+            } else {
+                Text("Source repository unavailable")
+                    .font(.system(size: 13))
+                    .foregroundStyle(Color.textSubtle)
+            }
         }
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -211,6 +184,8 @@ struct SkillDetailView: View {
 
             Markdown(body)
                 .markdownTheme(.skiller)
+                .markdownImageProvider(.asset)
+                .markdownInlineImageProvider(.asset)
                 .padding(.top, 4)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -227,37 +202,10 @@ struct SkillDetailView: View {
         return stripped.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
-    private func metaBlock(_ skill: Skill) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("More")
-                .font(.system(size: 13, weight: .semibold))
-                .foregroundStyle(Color.textSubtle)
-            Link(destination: URL(string: skill.githubUrl) ?? URL(string: "https://github.com")!) {
-                HStack {
-                    Image(systemName: "arrow.up.right.square")
-                        .foregroundStyle(Color.brand)
-                    Text("View on GitHub")
-                        .font(.system(size: 14))
-                        .foregroundStyle(Color.textPrimary)
-                    Spacer()
-                    Image(systemName: "chevron.right")
-                        .font(.system(size: 12))
-                        .foregroundStyle(Color.textSubtle)
-                }
-            }
-        }
-        .padding(16)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color.bgCard)
-        .overlay(RoundedRectangle(cornerRadius: 16).strokeBorder(Color.borderSubtle, lineWidth: 1))
-        .clipShape(RoundedRectangle(cornerRadius: 16))
-    }
-
-    private func copyCommand(_ cmd: String) {
-        UIPasteboard.general.string = cmd
-        copiedCommand = true
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.6) { copiedCommand = false }
-        Task { await SkillsAPI.incrementInstallCount(skillId) }
+    private func copySource(_ url: URL) {
+        UIPasteboard.general.url = url
+        copiedSource = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.6) { copiedSource = false }
     }
 
     private func toggleFav() {

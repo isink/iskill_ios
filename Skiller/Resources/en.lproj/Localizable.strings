@@ -75,6 +75,7 @@
 "Privacy Policy" = "Privacy Policy";
 "Terms of Use" = "Terms of Use";
 "Feedback" = "Feedback";
+"Ad Privacy Options" = "Ad Privacy Options";
 "Apple User" = "Apple User";
 "Favorites synced" = "Favorites synced";
 "Syncing favorites…" = "Syncing favorites…";
@@ -101,8 +102,12 @@
 // SkillDetailView
 "Skill not found" = "Skill not found";
 "Report this skill" = "Report this skill";
-"Install Command" = "Install Command";
+"Source Repository" = "Source Repository";
+"Review the repository instructions before installing third-party code." = "Review the repository instructions before installing third-party code.";
 "View on GitHub" = "View on GitHub";
+"Copy Link" = "Copy Link";
+"Copied" = "Copied";
+"Source repository unavailable" = "Source repository unavailable";
 
 // ExploreView
 "All" = "All";
@@ -127,7 +132,7 @@
 
 // Consent gate (CN compliance)
 "welcome_consent_title" = "Please read and agree to the terms before using";
-"consent_body_intro" = "We only collect necessary data (e.g. device identifier for analytics and ads) after you agree. You can withdraw consent anytime in Settings.";
+"consent_body_intro" = "After you agree, we process only the information needed for the features you use and ads. To withdraw, stop using and uninstall the app or contact us. You can manage advertising choices from Profile when available.";
 "consent_read_prefix" = "I have read and agree to the";
 "consent_and" = "and";
 "consent_agree" = "Agree and Continue";

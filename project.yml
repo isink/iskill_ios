@@ -23,6 +23,9 @@ packages:
   GoogleMobileAds:
     url: https://github.com/googleads/swift-package-manager-google-mobile-ads.git
     from: "12.0.0"
+  GoogleUserMessagingPlatform:
+    url: https://github.com/googleads/swift-package-manager-google-user-messaging-platform.git
+    from: "3.1.0"
 
 settings:
   base:
@@ -36,14 +39,20 @@ targets:
     type: application
     platform: iOS
     sources:
-      - path: Skiller
-        excludes:
-          - "Resources/Info.plist"
-          - "Resources/Skiller.entitlements"
-    resources:
+      - path: Skiller/App
+      - path: Skiller/Components
+      - path: Skiller/Models
+      - path: Skiller/Services
+      - path: Skiller/Theme
+      - path: Skiller/Views
       - path: Skiller/Resources/Assets.xcassets
+        buildPhase: resources
+      - path: Skiller/Resources/PrivacyInfo.xcprivacy
+        buildPhase: resources
       - path: Skiller/Resources/en.lproj
+        buildPhase: resources
       - path: Skiller/Resources/zh-Hans.lproj
+        buildPhase: resources
     info:
       path: Skiller/Resources/Info.plist
       properties:
@@ -168,6 +177,8 @@ targets:
         product: MarkdownUI
       - package: GoogleMobileAds
         product: GoogleMobileAds
+      - package: GoogleUserMessagingPlatform
+        product: GoogleUserMessagingPlatform
     scheme:
       testTargets:
         - SkillerTests

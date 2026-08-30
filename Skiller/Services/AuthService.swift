@@ -38,7 +38,10 @@ final class AuthService: ObservableObject {
 
     private var listenerTask: Task<Void, Never>?
 
-    private init() {
+    private init() {}
+
+    func startListening() {
+        guard listenerTask == nil else { return }
         listenerTask = Task { [weak self] in
             guard let self else { return }
             for await change in supabase.auth.authStateChanges {

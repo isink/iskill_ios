@@ -5,6 +5,7 @@ import SwiftUI
 struct ProfileView: View {
     @EnvironmentObject private var auth: AuthService
     @EnvironmentObject private var favoriteSync: FavoriteSyncCoordinator
+    @EnvironmentObject private var adConsent: AdConsentService
     @Query private var recents: [RecentView]
     @State private var signingIn = false
     @State private var authError: String? = nil
@@ -486,6 +487,17 @@ struct ProfileView: View {
                         .underline(true, color: Color.textSubtle.opacity(0.5))
                 }
                 Spacer()
+            }
+
+            if adConsent.isPrivacyOptionsRequired {
+                Button("Ad Privacy Options") {
+                    Task { await adConsent.presentPrivacyOptions() }
+                }
+                .font(.caption)
+                .foregroundStyle(Color.textSubtle)
+                .underline(true, color: Color.textSubtle.opacity(0.5))
+                .frame(minHeight: 44)
+                .contentShape(Rectangle())
             }
 
             if !ComplianceConfig.icpFilingNumber.isEmpty {

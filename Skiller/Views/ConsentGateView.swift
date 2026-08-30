@@ -1,7 +1,7 @@
 import SwiftUI
 
-/// 首次启动隐私同意门。未同意前不展示主界面、不采集任何个人信息、
-/// 不启动广告 SDK。同意状态由宿主持久化在 @AppStorage("privacyConsentAccepted")。
+/// 首次启动隐私同意门。未同意前不展示主界面，也不主动启动业务或广告服务。
+/// 同意状态由宿主持久化在 @AppStorage("privacyConsentAccepted")。
 struct ConsentGateView: View {
     /// 用户点击"同意并继续"时回调（由宿主负责持久化并启动后续流程）。
     let onAccept: () -> Void
@@ -10,47 +10,52 @@ struct ConsentGateView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            Spacer()
+            ScrollView {
+                VStack(spacing: 0) {
+                    Text("Skiller")
+                        .font(.largeTitle.bold())
+                        .foregroundStyle(Color.textPrimary)
 
-            Text("Skiller")
-                .font(.system(size: 28, weight: .bold))
-                .foregroundStyle(Color.textPrimary)
+                    Text("welcome_consent_title")
+                        .font(.body)
+                        .foregroundStyle(Color.textSubtle)
+                        .multilineTextAlignment(.center)
+                        .padding(.top, 12)
 
-            Text("welcome_consent_title")
-                .font(.system(size: 15))
-                .foregroundStyle(Color.textSubtle)
-                .multilineTextAlignment(.center)
-                .padding(.top, 12)
-                .padding(.horizontal, 32)
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("consent_body_intro")
+                            .font(.callout)
+                            .foregroundStyle(Color.textSubtle)
 
-            VStack(alignment: .leading, spacing: 10) {
-                Text("consent_body_intro")
-                    .font(.system(size: 13))
-                    .foregroundStyle(Color.textSubtle)
-
-                HStack(spacing: 4) {
-                    Text("consent_read_prefix")
-                    Link("privacy_policy", destination: ComplianceConfig.privacyURL)
-                    Text("consent_and")
-                    Link("terms_of_use", destination: ComplianceConfig.termsURL)
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("consent_read_prefix")
+                            ViewThatFits(in: .horizontal) {
+                                HStack(spacing: 4) {
+                                    legalLinks
+                                }
+                                VStack(alignment: .leading, spacing: 6) {
+                                    legalLinks
+                                }
+                            }
+                        }
+                        .font(.callout)
+                        .tint(Color.brand)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(16)
+                    .background(Color.textPrimary.opacity(0.05))
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .padding(.top, 24)
                 }
-                .font(.system(size: 13))
-                .tint(Color.brand)
+                .padding(.horizontal, 24)
+                .padding(.top, 56)
+                .padding(.bottom, 24)
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(16)
-            .background(Color.textPrimary.opacity(0.05))
-            .clipShape(RoundedRectangle(cornerRadius: 12))
-            .padding(.horizontal, 24)
-            .padding(.top, 24)
-
-            Spacer()
 
             Button(action: onAccept) {
                 Text("consent_agree")
-                    .font(.system(size: 16, weight: .semibold))
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 14)
+                    .font(.headline)
+                    .frame(maxWidth: .infinity, minHeight: 52)
                     .background(Color.brand)
                     .foregroundStyle(.black)
                     .clipShape(RoundedRectangle(cornerRadius: 12))
@@ -61,12 +66,12 @@ struct ConsentGateView: View {
                 showDeclineNote = true
             } label: {
                 Text("consent_decline")
-                    .font(.system(size: 14))
+                    .font(.subheadline)
                     .foregroundStyle(Color.textSubtle)
-                    .padding(.vertical, 12)
+                    .frame(minHeight: 44)
             }
         }
-        .padding(.bottom, 24)
+        .safeAreaPadding(.bottom, 8)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.bg.ignoresSafeArea())
         .alert("consent_decline_title", isPresented: $showDeclineNote) {
@@ -74,5 +79,12 @@ struct ConsentGateView: View {
         } message: {
             Text("consent_decline_message")
         }
+    }
+
+    @ViewBuilder
+    private var legalLinks: some View {
+        Link("privacy_policy", destination: ComplianceConfig.privacyURL)
+        Text("consent_and")
+        Link("terms_of_use", destination: ComplianceConfig.termsURL)
     }
 }

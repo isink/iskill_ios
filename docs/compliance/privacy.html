@@ -43,7 +43,7 @@
 <!-- ==================== 中文版 ==================== -->
 
 <h1>隐私政策</h1>
-<p class="updated">最近更新：2026 年 5 月 19 日 · 生效日期：2026 年 5 月 19 日</p>
+<p class="updated">最近更新：2026 年 8 月 31 日 · 生效日期：2026 年 8 月 31 日</p>
 
 <p>本隐私政策说明 Skiller（以下称"本应用""我们"）在你使用本 iOS 应用时如何收集、使用、存储、共享和保护你的个人信息。我们坚持<strong>最小必要</strong>原则，并对每一项数据处理保持透明。请在使用本应用前完整阅读本政策。</p>
 
@@ -51,39 +51,39 @@
 <p>本应用由个人开发者 <strong>duskecho</strong> 开发与运营。如对本政策或你的个人信息有任何疑问、投诉或权利请求，可通过电子邮件联系我们：<a href="mailto:handwanly@gmail.com">handwanly@gmail.com</a>。本应用的工业和信息化部备案编号在 App 内"我的"页面底部展示。</p>
 
 <h2>2. 我们如何征得你的同意</h2>
-<p>你<strong>首次启动本应用</strong>时，会先看到隐私同意提示。<strong>在你明确点击"同意并继续"之前，本应用不会收集任何个人信息，也不会启动广告 SDK、不会发起任何网络请求。</strong>仅在你同意后，下述功能与数据处理才会启用。你可以选择不同意，此时本应用不提供服务。</p>
+<p>你<strong>首次启动本应用</strong>时，会先看到隐私同意提示。<strong>在你明确点击"同意并继续"之前，本应用不会启动账号、技能目录、收藏同步或广告服务，也不会主动发起这些服务的网络请求。</strong>如果你主动点击隐私政策或使用条款链接，系统浏览器会按你的操作加载相应网页。仅在你同意后，下述功能与数据处理才会启用。你可以选择不同意，此时本应用不提供服务。广告法规要求提供额外选择时，Google User Messaging Platform 会另行展示广告隐私选项。</p>
 
 <h2>3. 我们收集的信息及用途</h2>
 
 <table>
   <tr><th>信息类型</th><th>具体内容</th><th>处理目的</th><th>是否必需</th></tr>
   <tr>
-    <td>设备标识符</td>
-    <td>设备供应商标识（identifierForVendor，<code>IDFV</code>）</td>
-    <td>统计应用打开次数，用于了解整体使用情况、排查问题。该标识不可用于跨 App 追踪。</td>
-    <td>同意后自动收集</td>
-  </tr>
-  <tr>
     <td>账号信息（仅在你登录时）</td>
-    <td><strong>GitHub 登录：</strong>GitHub 用户名、昵称、头像 URL，以及一个短期 OAuth 令牌（仅在你主动提交技能时用于列出你的公开仓库）。<br><strong>苹果登录：</strong>Apple 中转的电子邮件地址（或私密代发地址）及你首次登录时选择共享的昵称。</td>
-    <td>创建并维护你的账号、识别你的提交、提供登录态。</td>
+    <td><strong>GitHub 登录：</strong>GitHub 用户名、昵称和头像 URL。<br><strong>苹果登录：</strong>Apple 中转的电子邮件地址（或私密代发地址）及你首次登录时选择共享的昵称。</td>
+    <td>创建并维护你的账号，提供登录状态和账号删除功能。</td>
     <td>仅登录时</td>
   </tr>
   <tr>
-    <td>提交数据</td>
-    <td>你提交技能时所选 GitHub 仓库地址、一个匿名用户标识、提交时间戳。</td>
-    <td>审核与收录你提交的技能。</td>
-    <td>仅提交时</td>
+    <td>账号收藏（仅在你登录时）</td>
+    <td>你的账号用户 ID、收藏的技能 ID，以及同步所需时间戳。</td>
+    <td>在你的设备之间同步收藏、处理离线修改和恢复同步状态。游客收藏会在你登录后迁移到账号并上传。</td>
+    <td>登录并使用收藏时</td>
   </tr>
   <tr>
-    <td>本地数据（不离开你的设备）</td>
-    <td>你收藏的技能、最近浏览记录。</td>
-    <td>提供收藏与浏览历史功能。使用 Apple SwiftData 仅存储在你本机，<strong>不上传服务器</strong>。</td>
+    <td>设备上的存储</td>
+    <td>游客状态下的收藏、最近浏览记录，以及账号收藏的本地缓存和待同步操作。</td>
+    <td>提供离线收藏、浏览历史和同步恢复。最近浏览记录不会上传；登录后的账号收藏会按上一行所述同步。</td>
     <td>本地</td>
+  </tr>
+  <tr>
+    <td>举报内容（仅当你主动举报）</td>
+    <td>被举报技能的 ID、名称和链接标识，你选择的举报原因、可选说明，以及你登录时的账号用户 ID。</td>
+    <td>接收并人工复核举报，处理违规内容和防止滥用。</td>
+    <td>提交举报时</td>
   </tr>
 </table>
 
-<p><strong>我们不会收集：</strong>地理位置；通讯录、相册或其他设备内容；不集成第三方统计/埋点 SDK；不收集用于个性化广告追踪的标识符（详见第 5 节）。</p>
+<p><strong>我们不会访问：</strong>精确地理位置、通讯录、设备相册或其他设备内容；我们不设置自有统计或行为埋点。Google AdMob SDK 可能处理的信息另见第 4、5 节。</p>
 
 <h2>4. 第三方服务与 SDK 清单</h2>
 <p>本应用依赖以下第三方服务运行，每一方均有其独立的隐私政策：</p>
@@ -91,14 +91,14 @@
   <tr><th>第三方</th><th>用途</th><th>可能处理的信息</th><th>隐私政策</th></tr>
   <tr>
     <td>Supabase（Supabase, Inc.）</td>
-    <td>承载账号鉴权系统与技能数据库（服务器位于中国大陆境外）。</td>
-    <td>账号信息、提交数据、设备标识统计记录。</td>
+    <td>承载账号鉴权、技能数据库、账号收藏同步与举报存储（基础设施位于中国大陆境外）。</td>
+    <td>账号信息、用户 ID、收藏的技能 ID、同步时间戳和你提交的举报内容。</td>
     <td><a href="https://supabase.com/privacy">supabase.com/privacy</a></td>
   </tr>
   <tr>
     <td>GitHub（GitHub, Inc.）</td>
-    <td>提供 GitHub 第三方登录与公开仓库列表。</td>
-    <td>你的 GitHub 账号公开信息、授权令牌。</td>
+    <td>提供 GitHub 第三方登录。</td>
+    <td>你的 GitHub 账号公开信息和登录授权信息。</td>
     <td><a href="https://docs.github.com/site-policy/privacy-policies/github-general-privacy-statement">GitHub 隐私声明</a></td>
   </tr>
   <tr>
@@ -109,31 +109,32 @@
   </tr>
   <tr>
     <td>Google AdMob（Google LLC）</td>
-    <td>展示横幅广告（非个性化模式）。</td>
-    <td>设备类型、粗略地区等有限的上下文信息（用于合规与反欺诈）。</td>
+    <td>展示横幅广告、收集适用地区的广告隐私选择。</td>
+    <td>Google 说明其 SDK 可能处理 IP 地址、粗略位置、设备标识符、广告数据、产品交互、崩溃与性能数据，用于广告投放、频次控制、汇总报告、反欺诈和 SDK 改进。</td>
     <td><a href="https://policies.google.com/privacy">policies.google.com/privacy</a></td>
   </tr>
 </table>
 
 <h2>5. 关于广告</h2>
-<p>本应用通过 Google AdMob 展示横幅广告，并已明确选择<strong>非个性化广告</strong>（<code>npa=1</code>）：广告不会基于你的浏览历史或兴趣进行定向；我们不申请 App Tracking Transparency（跨 App 追踪）权限；AdMob 仍可能处理有限的上下文数据（如设备类型、粗略地区）以遵守各地区广告法规并防止欺诈，详见上方 AdMob 政策。广告 SDK 仅在你同意本政策后才会启动。</p>
+<p>本应用将 Google Mobile Ads SDK 配置为<strong>非个性化广告</strong>，并关闭发布商第一方标识符。非个性化广告不根据你的历史行为选择广告，但 Google 说明这类广告仍可能使用 Cookie 或移动广告标识符进行频次控制和汇总报告。我们不请求 App Tracking Transparency 权限，因此本应用不能访问 IDFA；这不代表广告 SDK 完全不处理设备或网络信息。</p>
+<p>你同意本政策后，本应用会先通过 Google User Messaging Platform 更新广告同意状态并展示适用的隐私选择。只有该平台确认可以请求广告时，应用才启动广告 SDK 和加载广告。适用地区要求长期提供选择入口时，"我的"页面会显示"广告隐私选项"。</p>
 
 <h2>6. 个人信息的跨境传输（重要）</h2>
-<p>本应用的账号鉴权与技能数据库由 Supabase（Supabase, Inc.，美国）提供，相关服务器位于<strong>中华人民共和国境外（美国）</strong>。这意味着你的账号信息、提交数据及设备标识统计记录会被传输至并存储于境外服务器。</p>
-<p>境外接收方为 Supabase, Inc.，所在国家为美国，接收目的为提供账号鉴权与数据存储服务，处理的个人信息类型限于本政策第 3 节所列项目。<strong>当你点击"同意并继续"时，即表示你已知悉并单独同意上述个人信息跨境传输。</strong>我们仅传输实现功能所必需的最小信息。</p>
+<p>本应用的账号鉴权、技能数据库、账号收藏同步和举报存储由 Supabase, Inc. 提供，相关基础设施位于<strong>中华人民共和国境外</strong>。登录后，你的账号信息、用户 ID、收藏的技能 ID 和同步时间戳会被传输至境外并存储；你主动提交举报时，举报内容也会传输至境外并存储。</p>
+<p>境外接收方为 Supabase, Inc.，所在国家为美国，接收目的为提供账号鉴权、数据存储、多设备收藏同步和举报处理。<strong>当你点击"同意并继续"时，即表示你已知悉并单独同意上述个人信息跨境传输。</strong>我们仅传输实现功能所必需的信息。</p>
 
 <h2>7. 个人信息的保存期限</h2>
 <ul>
-  <li><strong>账号数据：</strong>在你的账号存续期间保留；账号注销后 30 天内删除。</li>
-  <li><strong>已通过审核的提交：</strong>作为公开技能目录的一部分长期保留，但在你注销账号后与你的用户标识解除关联。</li>
-  <li><strong>设备标识统计记录：</strong>用于汇总统计，按需保留并定期清理。</li>
-  <li><strong>本地数据：</strong>保存在你的设备上，直至你删除本应用。</li>
+  <li><strong>账号与账号收藏：</strong>在你的账号存续期间保留。账号删除成功后，在线账号记录及其收藏记录会一并删除。</li>
+  <li><strong>本地账号缓存：</strong>账号删除成功后从当前设备清除。</li>
+  <li><strong>游客收藏与最近浏览：</strong>保存在你的设备上，直至你删除本应用。</li>
+  <li><strong>举报：</strong>在处理举报和保留必要审核记录期间保存。你删除账号后，举报中的账号用户 ID 会与账号解除关联；如需删除举报内容，可通过下方邮箱联系我们。</li>
 </ul>
 
 <h2>8. 你的权利</h2>
 <p>在适用法律范围内，你有权访问、更正、复制、删除我们持有的你的个人信息，撤回同意，以及注销账号：</p>
 <ol>
-  <li><strong>注销账号：</strong>打开 App → "我的" → 点击头像卡片下方的"删除账号" → 确认。该操作将永久删除你的账号凭据并解除你与已收录提交的关联，<strong>不可撤销</strong>；本机收藏不受影响。</li>
+  <li><strong>注销账号：</strong>打开 App → "我的" → 点击头像卡片下方的"删除账号" → 确认。该操作将永久删除你的账号凭据、服务器账号收藏及当前设备上的账号收藏缓存，<strong>不可撤销</strong>。独立的游客收藏和最近浏览记录仍保留在设备上，直至你删除本应用；既有举报会解除与你账号用户 ID 的关联。</li>
   <li><strong>撤回同意：</strong>你可注销账号并停止使用、卸载本应用以撤回同意；如需删除仍保留在服务器上的数据，可通过下方邮箱联系我们。</li>
   <li><strong>访问、更正、复制：</strong>通过下方邮箱向我们提出请求，我们将在合理期限内响应。</li>
 </ol>
@@ -155,7 +156,7 @@
 <!-- ==================== English version ==================== -->
 
 <h1>Privacy Policy</h1>
-<p class="updated">Last updated: May 19, 2026 · Effective: May 19, 2026</p>
+<p class="updated">Last updated: August 31, 2026 · Effective: August 31, 2026</p>
 
 <p>This Privacy Policy describes how Skiller ("we", "the app") collects, uses, stores, shares, and protects your information when you use our iOS application. We follow a <strong>data minimization</strong> principle and aim to be transparent about every processing activity. Please read this policy in full before using the app.</p>
 
@@ -163,63 +164,64 @@
 <p>This app is developed and operated by an individual developer, <strong>duskecho</strong>. For any questions, complaints, or rights requests regarding this policy or your personal information, contact us at <a href="mailto:handwanly@gmail.com">handwanly@gmail.com</a>. The app's MIIT (ICP) filing number is displayed at the bottom of the in-app Profile page.</p>
 
 <h2>2. How We Obtain Your Consent</h2>
-<p>On <strong>first launch</strong>, you are shown a privacy consent screen. <strong>Until you explicitly tap "Agree and Continue", the app collects no personal information, starts no advertising SDK, and makes no network requests.</strong> The features and processing below are enabled only after you agree. If you decline, the app does not provide its service.</p>
+<p>On <strong>first launch</strong>, you are shown a privacy consent screen. <strong>Until you explicitly tap "Agree and Continue", the app does not start account, Skills directory, favorites sync, or advertising services, and does not proactively make network requests to those services.</strong> If you choose a Privacy Policy or Terms link, the system browser loads that page at your direction. The features and processing below are enabled only after you agree. If you decline, the app does not provide its service. Where advertising rules require additional choices, Google User Messaging Platform presents a separate advertising privacy form.</p>
 
 <h2>3. Information We Collect &amp; Why</h2>
 <table>
   <tr><th>Category</th><th>Details</th><th>Purpose</th><th>When</th></tr>
   <tr>
-    <td>Device identifier</td>
-    <td>Vendor identifier (<code>identifierForVendor</code> / IDFV)</td>
-    <td>Count app opens to understand overall usage and troubleshoot. Cannot be used for cross-app tracking.</td>
-    <td>After consent</td>
-  </tr>
-  <tr>
     <td>Account info (only if you sign in)</td>
-    <td><strong>GitHub:</strong> username, display name, avatar URL, and a short-lived OAuth token (used only to list your public repos when you choose to submit a Skill).<br><strong>Apple:</strong> Apple-relayed email (or private relay address) and the display name you choose to share at first sign-in.</td>
-    <td>Create/maintain your account, attribute submissions, keep you signed in.</td>
+    <td><strong>GitHub:</strong> username, display name, and avatar URL.<br><strong>Apple:</strong> Apple-relayed email (or private relay address) and the display name you choose to share at first sign-in.</td>
+    <td>Create and maintain your account, keep you signed in, and provide account deletion.</td>
     <td>On sign-in</td>
   </tr>
   <tr>
-    <td>Submission data</td>
-    <td>The GitHub repo URL you select, an anonymous user ID, and timestamps.</td>
-    <td>Review and list your submitted Skill.</td>
-    <td>On submission</td>
+    <td>Account favorites (only if you sign in)</td>
+    <td>Your account user ID, favorited Skill IDs, and timestamps needed for synchronization.</td>
+    <td>Sync favorites across your devices, process offline changes, and recover synchronization state. Guest favorites migrate to your account and are uploaded after you sign in.</td>
+    <td>When signed in and using favorites</td>
   </tr>
   <tr>
-    <td>On-device data (never leaves your device)</td>
-    <td>Your favorited and recently viewed Skills.</td>
-    <td>Provide favorites and history. Stored locally via Apple SwiftData; <strong>not uploaded</strong>.</td>
+    <td>On-device storage</td>
+    <td>Guest favorites, recently viewed Skills, the local account-favorites cache, and pending sync operations.</td>
+    <td>Provide offline favorites, viewing history, and sync recovery. Recent viewing history is not uploaded; signed-in account favorites sync as described above.</td>
     <td>Local</td>
   </tr>
+  <tr>
+    <td>Report content (only when you submit a report)</td>
+    <td>The reported Skill's ID, name, and slug; the reason you select; any optional note; and your account user ID when signed in.</td>
+    <td>Receive and manually review reports, address prohibited content, and prevent abuse.</td>
+    <td>When you submit a report</td>
+  </tr>
 </table>
-<p><strong>We do NOT collect:</strong> location; contacts, photos, or other device content; no third-party analytics SDKs; no advertising tracking identifier (see Section 5).</p>
+<p><strong>We do NOT access:</strong> precise location, contacts, your device photo library, or other device content. We do not operate our own analytics or behavioral event tracking. Information that Google AdMob may process is described in Sections 4 and 5.</p>
 
 <h2>4. Third-Party Services &amp; SDKs</h2>
 <ul>
-  <li><strong>Supabase</strong> (Supabase, Inc.) — hosts authentication and the Skills database on servers <strong>outside mainland China</strong>. <a href="https://supabase.com/privacy">supabase.com/privacy</a></li>
-  <li><strong>GitHub</strong> (GitHub, Inc.) — OAuth sign-in and public repo listing. <a href="https://docs.github.com/site-policy/privacy-policies/github-general-privacy-statement">GitHub Privacy Statement</a></li>
+  <li><strong>Supabase</strong> (Supabase, Inc.) — hosts authentication, the Skills database, account-favorites sync, and report storage on infrastructure <strong>outside mainland China</strong>; it processes account information, user IDs, favorited Skill IDs, sync timestamps, and report content you submit. <a href="https://supabase.com/privacy">supabase.com/privacy</a></li>
+  <li><strong>GitHub</strong> (GitHub, Inc.) — provides OAuth sign-in and processes your public GitHub profile and sign-in authorization information. <a href="https://docs.github.com/site-policy/privacy-policies/github-general-privacy-statement">GitHub Privacy Statement</a></li>
   <li><strong>Apple</strong> (Apple Inc.) — Sign in with Apple. <a href="https://www.apple.com/legal/privacy/">apple.com/legal/privacy</a></li>
-  <li><strong>Google AdMob</strong> (Google LLC) — non-personalized banner ads. <a href="https://policies.google.com/privacy">policies.google.com/privacy</a></li>
+  <li><strong>Google AdMob and User Messaging Platform</strong> (Google LLC) — display banner ads and collect applicable advertising privacy choices. Google states that its SDK may process IP address, approximate location, device identifiers, advertising data, product interactions, crash data, and performance data for ad delivery, frequency capping, aggregate reporting, fraud prevention, and SDK improvement. <a href="https://policies.google.com/privacy">policies.google.com/privacy</a></li>
 </ul>
 
 <h2>5. Advertising</h2>
-<p>We display banner ads via Google AdMob in <strong>non-personalized mode</strong> (<code>npa=1</code>): ads are not targeted using your browsing history or interests; we do not request App Tracking Transparency; AdMob may still process limited contextual data (device type, approximate region) for regional ad compliance and fraud prevention. The ad SDK starts only after you accept this policy.</p>
+<p>We configure the Google Mobile Ads SDK for <strong>non-personalized ads</strong> and disable the publisher first-party identifier. Non-personalized ads are not selected from your past behavior, but Google states that they may still use cookies or mobile advertising identifiers for frequency capping and aggregate reporting. We do not request App Tracking Transparency permission, so the app cannot access the IDFA. This does not mean the advertising SDK processes no device or network information.</p>
+<p>After you accept this policy, the app first asks Google User Messaging Platform to update advertising consent status and present any privacy choices that apply. The app starts the advertising SDK and loads ads only when that platform reports that ads may be requested. If your region requires an ongoing choice, an "Ad Privacy Options" entry appears on the Profile page.</p>
 
 <h2>6. Cross-Border Data Transfer (Important)</h2>
-<p>Authentication and the Skills database are provided by Supabase, Inc. (United States), with servers located <strong>outside the People's Republic of China (in the United States)</strong>. Your account info, submission data, and device-identifier usage records are transferred to and stored on overseas servers. The overseas recipient is Supabase, Inc. (United States), for the purpose of authentication and data storage, limited to the data listed in Section 3. <strong>By tapping "Agree and Continue", you acknowledge and separately consent to this cross-border transfer.</strong> We transfer only the minimum necessary.</p>
+<p>Authentication, the Skills database, account-favorites sync, and report storage are provided by Supabase, Inc. using infrastructure <strong>outside the People's Republic of China</strong>. After sign-in, your account information, user ID, favorited Skill IDs, and sync timestamps are transferred overseas and stored there. Report content is also transferred overseas and stored when you submit it. The overseas recipient is Supabase, Inc. in the United States, for authentication, data storage, multi-device favorites sync, and report handling. <strong>By tapping "Agree and Continue", you acknowledge and separately consent to this cross-border transfer.</strong> We transfer only information needed to provide these features.</p>
 
 <h2>7. Data Retention</h2>
 <ul>
-  <li><strong>Account data:</strong> kept while your account exists; deleted within 30 days of account deletion.</li>
-  <li><strong>Approved submissions:</strong> retained as part of the public Skills directory, detached from your user identifier upon account deletion.</li>
-  <li><strong>Device-identifier usage records:</strong> kept for aggregate statistics and periodically purged.</li>
-  <li><strong>On-device data:</strong> stays on your device until you delete the app.</li>
+  <li><strong>Account and account favorites:</strong> kept while your account exists. When account deletion succeeds, the online account record and its favorites are deleted together.</li>
+  <li><strong>Local account cache:</strong> cleared from the current device after account deletion succeeds.</li>
+  <li><strong>Guest favorites and recent viewing history:</strong> stay on your device until you delete the app.</li>
+  <li><strong>Reports:</strong> kept while needed to process the report and maintain necessary review records. Account deletion unlinks your account user ID from existing reports; email us if you want report content deleted.</li>
 </ul>
 
 <h2>8. Your Rights</h2>
 <ol>
-  <li><strong>Delete account:</strong> Profile → "Delete account" below your profile card → confirm. Permanently deletes your credentials and detaches you from approved submissions; cannot be undone; local favorites are unaffected.</li>
+  <li><strong>Delete account:</strong> Profile → "Delete account" below your profile card → confirm. Permanently deletes your credentials, server-side account favorites, and the current device's account-favorites cache; this cannot be undone. Separate guest favorites and recent viewing history stay on your device until you delete the app. Existing reports are unlinked from your account user ID.</li>
   <li><strong>Withdraw consent:</strong> delete your account, stop using, and uninstall the app; email us to remove any server-side data that remains.</li>
   <li><strong>Access / correct / export:</strong> email us; we respond within a reasonable time.</li>
 </ol>

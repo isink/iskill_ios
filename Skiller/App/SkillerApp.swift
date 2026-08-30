@@ -1,4 +1,3 @@
-import GoogleMobileAds
 import SwiftData
 import SwiftUI
 import UIKit
@@ -7,6 +6,7 @@ import UIKit
 struct SkillerApp: App {
     @StateObject private var auth = AuthService.shared
     @StateObject private var favoriteSync = FavoriteSyncCoordinator()
+    @StateObject private var adConsent = AdConsentService()
     @AppStorage("privacyConsentAccepted") private var consentAccepted = false
 
     var body: some Scene {
@@ -16,9 +16,14 @@ struct SkillerApp: App {
                     RootTabView()
                         .environmentObject(auth)
                         .environmentObject(favoriteSync)
+                        .environmentObject(adConsent)
                         .task {
-                            startServicesAfterConsent()
+                            auth.startListening()
+                            await supabase.auth.startAutoRefresh()
                             await auth.bootstrap()
+                            if ComplianceConfig.adsEnabled {
+                                await adConsent.prepare()
+                            }
                         }
                         .onOpenURL { url in
                             Task { await auth.handle(url: url) }
@@ -29,13 +34,11 @@ struct SkillerApp: App {
                         ) { _ in
                             Task {
                                 await favoriteSync.sync()
-                                await recordAppOpen()
                             }
                         }
                 } else {
                     ConsentGateView {
                         consentAccepted = true
-                        startServicesAfterConsent()
                     }
                 }
             }
@@ -48,21 +51,5 @@ struct SkillerApp: App {
             LastSeen.self,
             RecentView.self,
         ])
-    }
-
-    /// 仅在用户同意后调用：启动广告 SDK。
-    private func startServicesAfterConsent() {
-        if ComplianceConfig.adsEnabled {
-            MobileAds.shared.start(completionHandler: nil)
-        }
-    }
-
-    private func recordAppOpen() async {
-        guard consentAccepted else { return }
-        guard let deviceId = await UIDevice.current.identifierForVendor?.uuidString else { return }
-        try? await supabase
-            .from("app_opens")
-            .insert(["device_id": deviceId])
-            .execute()
     }
 }

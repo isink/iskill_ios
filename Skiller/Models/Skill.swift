@@ -64,6 +64,23 @@ struct HomeStats {
 }
 
 extension Skill {
+    var githubRepositoryURL: URL? {
+        Self.githubRepositoryURL(from: githubUrl)
+    }
+
+    static func githubRepositoryURL(from rawValue: String) -> URL? {
+        guard let components = URLComponents(string: rawValue),
+              components.scheme?.lowercased() == "https",
+              components.host?.lowercased() == "github.com",
+              components.user == nil,
+              components.password == nil,
+              components.port == nil,
+              components.path.split(separator: "/").count >= 2,
+              let url = components.url
+        else { return nil }
+        return url
+    }
+
     /// Picks Chinese description for zh users, English for everyone else.
     /// Falls back to whichever exists when the preferred one is missing/empty.
     var localizedDescription: String {

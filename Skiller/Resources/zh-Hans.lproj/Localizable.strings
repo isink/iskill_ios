@@ -75,6 +75,7 @@
 "Privacy Policy" = "隐私政策";
 "Terms of Use" = "使用条款";
 "Feedback" = "意见反馈";
+"Ad Privacy Options" = "广告隐私选项";
 "Apple User" = "Apple 用户";
 "Favorites synced" = "收藏已同步";
 "Syncing favorites…" = "正在同步收藏…";
@@ -101,8 +102,12 @@
 // SkillDetailView
 "Skill not found" = "找不到该技能";
 "Report this skill" = "举报此技能";
-"Install Command" = "安装命令";
+"Source Repository" = "源码仓库";
+"Review the repository instructions before installing third-party code." = "安装第三方代码前，请先查看仓库中的说明。";
 "View on GitHub" = "在 GitHub 上查看";
+"Copy Link" = "复制链接";
+"Copied" = "已复制";
+"Source repository unavailable" = "源码仓库暂不可用";
 
 // ExploreView
 "All" = "全部";
@@ -127,7 +132,7 @@
 
 // Consent gate (CN compliance)
 "welcome_consent_title" = "在使用前，请阅读并同意以下条款";
-"consent_body_intro" = "我们仅在你同意后采集必要信息（如设备标识用于统计与广告）。你可随时在系统设置中撤回。";
+"consent_body_intro" = "你同意后，我们只处理所用功能和广告需要的信息。如需撤回，请停止使用并卸载本应用，或联系我们；适用时可在“我的”页面管理广告选择。";
 "consent_read_prefix" = "我已阅读并同意";
 "consent_and" = "和";
 "consent_agree" = "同意并继续";

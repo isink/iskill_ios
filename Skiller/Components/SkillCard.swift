@@ -2,7 +2,6 @@ import SwiftUI
 
 struct SkillCard: View {
     let skill: Skill
-    var showInstall: Bool = false
 
     @EnvironmentObject private var favoriteSync: FavoriteSyncCoordinator
 
@@ -18,8 +17,6 @@ struct SkillCard: View {
             .prefix(3)
             .map { $0 }
     }
-
-    private var installCommand: String { "claude skill install \(skill.slug)" }
 
     var body: some View {
         NavigationLink(value: SkillRoute.detail(skill.id)) {
@@ -99,10 +96,6 @@ struct SkillCard: View {
                     .padding(.top, 12)
                 }
 
-                if showInstall {
-                    InstallChip(command: installCommand) { copyInstall() }
-                        .padding(.top, 12)
-                }
             }
             .padding(16)
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -120,41 +113,4 @@ struct SkillCard: View {
         favoriteSync.toggle(skill.id)
     }
 
-    private func copyInstall() {
-        UIPasteboard.general.string = installCommand
-        Task { await SkillsAPI.incrementInstallCount(skill.id) }
-    }
-}
-
-private struct InstallChip: View {
-    let command: String
-    let onTap: () -> Void
-    @State private var copied = false
-
-    var body: some View {
-        Button {
-            onTap()
-            copied = true
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.8) { copied = false }
-        } label: {
-            HStack {
-                Text(command)
-                    .font(.system(size: 12, design: .monospaced))
-                    .foregroundStyle(Color.textMuted)
-                    .lineLimit(1)
-                Spacer()
-                Image(systemName: copied ? "checkmark.circle.fill" : "doc.on.doc")
-                    .font(.system(size: 14))
-                    .foregroundStyle(copied ? Color.accentGreen : Color.brand)
-            }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 8)
-            .background(Color.bgElevated)
-            .overlay(
-                RoundedRectangle(cornerRadius: 12).strokeBorder(Color.borderDefault, lineWidth: 1)
-            )
-            .clipShape(RoundedRectangle(cornerRadius: 12))
-        }
-        .buttonStyle(.plain)
-    }
 }
