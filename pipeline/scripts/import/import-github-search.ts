@@ -18,6 +18,9 @@ import { db } from "./lib/supabase";
 import { env } from "./lib/env";
 import { idToDisplayName, toSlug } from "./lib/slugify";
 import { mapCategory } from "./lib/category-map";
+import { assertNoBatchFailures } from "../lib/batch-failures";
+import { assertCompleteGitHubSearch } from "../lib/github-search";
+import { boundedRetryDelayMs } from "../lib/rate-limit";
 
 // Repos already handled by dedicated importers — skip them.
 const SKIP_REPOS = new Set([
@@ -75,10 +78,14 @@ async function searchPage(page: number, attempt = 0): Promise<SearchResponse> {
     const res = await fetch(url, { headers: authHeaders(), signal: AbortSignal.timeout(30000) });
 
     if (res.status === 403 || res.status === 429) {
-      const retryAfter = Number(res.headers.get("retry-after") ?? 60);
-      console.warn(`  ⚠ Rate limited — waiting ${retryAfter}s`);
-      await sleep(retryAfter * 1000);
-      return searchPage(page, attempt);
+      const retryAfter = Number(res.headers.get("retry-after") ?? 60) * 1000;
+      const delayMs = boundedRetryDelayMs(attempt, retryAfter);
+      if (delayMs === undefined) {
+        throw new Error(`Search API ${res.status} after ${attempt + 1} attempts`);
+      }
+      console.warn(`  ⚠ Rate limited — waiting ${Math.ceil(delayMs / 1000)}s`);
+      await sleep(delayMs);
+      return searchPage(page, attempt + 1);
     }
     if (res.status >= 500 || res.status === 408) {
       throw new Error(`Search API ${res.status} ${res.statusText}`);
@@ -99,18 +106,19 @@ async function searchPage(page: number, attempt = 0): Promise<SearchResponse> {
 }
 
 /** Fetch raw SKILL.md content via the contents API URL from search results */
-async function fetchSkillMdFromUrl(contentsUrl: string): Promise<string | null> {
-  try {
-    const res = await fetch(contentsUrl, { headers: authHeaders() });
-    if (!res.ok) return null;
-    const data = (await res.json()) as { content?: string; encoding?: string };
-    if (!data.content || data.encoding !== "base64") return null;
-    // Node's atob doesn't handle multi-line base64; strip newlines first.
-    const decoded = Buffer.from(data.content.replace(/\n/g, ""), "base64").toString("utf8");
-    return decoded.replace(/\u0000/g, "");
-  } catch {
-    return null;
+async function fetchSkillMdFromUrl(contentsUrl: string): Promise<string | undefined> {
+  const res = await fetch(contentsUrl, { headers: authHeaders() });
+  if (res.status === 404) return undefined;
+  if (!res.ok) {
+    throw new Error(`Contents API ${res.status} ${res.statusText}: ${contentsUrl}`);
   }
+  const data = (await res.json()) as { content?: string; encoding?: string };
+  if (!data.content || data.encoding !== "base64") {
+    throw new Error(`Contents API returned no base64 content: ${contentsUrl}`);
+  }
+  // Node's atob doesn't handle multi-line base64; strip newlines first.
+  const decoded = Buffer.from(data.content.replace(/\n/g, ""), "base64").toString("utf8");
+  return decoded.replace(/\u0000/g, "");
 }
 
 /** Minimal YAML frontmatter parser (same approach as import-anthropic.ts) */
@@ -167,6 +175,7 @@ async function main() {
   while (page <= MAX_PAGES) {
     process.stdout.write(`  ↳ page ${page}/${MAX_PAGES}...\r`);
     const result = await searchPage(page);
+    assertCompleteGitHubSearch(result.incomplete_results);
 
     if (page === 1) {
       console.log(`\n✓ Total matches on GitHub: ${result.total_count}`);
@@ -174,7 +183,7 @@ async function main() {
 
     allItems.push(...result.items);
 
-    if (result.items.length < PER_PAGE || result.incomplete_results) break;
+    if (result.items.length < PER_PAGE) break;
 
     page++;
     if (page <= MAX_PAGES) await sleep(SEARCH_DELAY_MS);
@@ -195,6 +204,7 @@ async function main() {
 
   let imported = 0;
   let skipped = 0;
+  let failed = 0;
 
   for (let i = 0; i < filtered.length; i++) {
     const item = filtered[i];
@@ -257,7 +267,7 @@ async function main() {
     const { error } = await db.from("skills").upsert(row, { onConflict: "slug" });
     if (error) {
       console.error(`\n  ✖ ${slug}: ${error.message}`);
-      skipped++;
+      failed++;
       continue;
     }
 
@@ -265,7 +275,8 @@ async function main() {
   }
 
   process.stdout.write("\n");
-  console.log(`\n✅ Done. Imported ${imported} new skills, skipped ${skipped}.`);
+  console.log(`\n✅ Done. Imported ${imported} new skills, skipped ${skipped}, failed ${failed}.`);
+  assertNoBatchFailures("skill upsert", failed);
 }
 
 main().catch((err) => {

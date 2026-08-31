@@ -1,0 +1,36 @@
+name: Pipeline checks
+
+on:
+  pull_request:
+    paths:
+      - "pipeline/**"
+      - ".github/workflows/pipeline-checks.yml"
+  push:
+    branches:
+      - master
+    paths:
+      - "pipeline/**"
+      - ".github/workflows/pipeline-checks.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  pipeline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: pipeline
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: pipeline/package-lock.json
+      - uses: supabase/setup-cli@v1
+        with:
+          version: 2.75.0
+      - run: npm ci
+      - run: npm run check:full

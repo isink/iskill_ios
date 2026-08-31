@@ -6,6 +6,28 @@ id, slug, name, description, description_zh, category, tags, use_cases, use_case
 author, github_url, github_stars, rank, score, featured, created_at, published_at
 """
 
+struct SubmitSkillReportParams: Encodable, Equatable {
+    let skillId: UUID
+    let reason: String
+    let note: String?
+
+    enum CodingKeys: String, CodingKey {
+        case skillId = "p_skill_id"
+        case reason = "p_reason"
+        case note = "p_note"
+    }
+}
+
+enum SkillReportSubmissionError: Error, Equatable {
+    case invalidSkillId
+    case signInRequired
+    case duplicate
+    case rateLimited
+    case skillUnavailable
+    case noteTooLong
+    case unavailable
+}
+
 enum SkillsAPI {
 
     // MARK: - Lists
@@ -238,41 +260,45 @@ enum SkillsAPI {
 
     static func submitReport(
         skillId: String,
-        skillSlug: String,
-        skillName: String,
         reason: String,
-        note: String?,
-        userId: UUID?
+        note: String?
     ) async throws {
-        struct Row: Encodable {
-            let skill_id: String
-            let skill_slug: String
-            let skill_name: String
-            let reason: String
-            let note: String?
-            let reporter_user_id: UUID?
+        guard let id = UUID(uuidString: skillId) else {
+            throw SkillReportSubmissionError.invalidSkillId
         }
-        try await supabase
-            .from("skill_reports")
-            .insert(Row(
-                skill_id: skillId,
-                skill_slug: skillSlug,
-                skill_name: skillName,
-                reason: reason,
-                note: note,
-                reporter_user_id: userId
-            ))
-            .execute()
-    }
-
-    static func incrementInstallCount(_ id: String) async {
-        struct Params: Encodable { let skill_id: String }
         do {
             try await supabase
-                .rpc("increment_install_count", params: Params(skill_id: id))
+                .rpc(
+                    "submit_skill_report",
+                    params: SubmitSkillReportParams(
+                        skillId: id,
+                        reason: reason,
+                        note: note
+                    )
+                )
                 .execute()
-        } catch {
-            // Best-effort; ignore failure
+        } catch let error as PostgrestError {
+            throw classifyReportFailure(code: error.code, message: error.message)
+        }
+    }
+
+    static func classifyReportFailure(
+        code: String?,
+        message: String
+    ) -> SkillReportSubmissionError {
+        switch (code, message) {
+        case ("42501", _), (_, "Not authenticated"):
+            return .signInRequired
+        case (_, "Duplicate report"):
+            return .duplicate
+        case (_, "Report rate limit exceeded"):
+            return .rateLimited
+        case ("23503", _), (_, "Skill not found"):
+            return .skillUnavailable
+        case ("22001", _), (_, "Report note is too long"):
+            return .noteTooLong
+        default:
+            return .unavailable
         }
     }
 }

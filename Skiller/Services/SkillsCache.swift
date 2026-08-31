@@ -44,7 +44,7 @@ actor SkillsCache {
             if isFresh, let s = stale { return s }
             do {
                 let v = try await fetch()
-                await self.commit(v, for: key)
+                self.commit(v, for: key)
                 return v
             } catch { return nil }
         }
@@ -136,7 +136,7 @@ extension SkillsCache {
             if isFresh, let s = staleFull { return s }
             do {
                 let v = try await SkillsAPI.fetchSkillById(id)
-                if let v { await self.commit(v, for: key) }
+                if let v { self.commit(v, for: key) }
                 return v
             } catch { return nil }
         }

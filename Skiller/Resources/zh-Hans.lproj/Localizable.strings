@@ -102,6 +102,14 @@
 // SkillDetailView
 "Skill not found" = "找不到该技能";
 "Report this skill" = "举报此技能";
+"Sign in to submit a report" = "登录后才能提交举报";
+"Open Profile and sign in before reporting a Skill." = "请先前往“我的”页面登录，再举报这个技能。";
+"Submission failed, please try again later" = "提交失败，请稍后重试。";
+"Your session expired. Please sign in again." = "登录已过期，请重新登录。";
+"You already submitted this report recently." = "你最近已经提交过相同举报。";
+"Too many reports. Please try again in an hour." = "举报次数过多，请一小时后再试。";
+"This Skill is no longer available." = "这个技能已不可用。";
+"The report note is too long." = "举报说明过长。";
 "Source Repository" = "源码仓库";
 "Review the repository instructions before installing third-party code." = "安装第三方代码前，请先查看仓库中的说明。";
 "View on GitHub" = "在 GitHub 上查看";

@@ -14,28 +14,17 @@ import { env } from "./lib/env";
 import { idToDisplayName } from "./lib/slugify";
 import { mapCategory, CURATED_CATEGORIES } from "./lib/category-map";
 import { applyOverrides } from "./lib/overrides";
-import { fetchRepoStars } from "./lib/github";
+import { fetchRepoStars, repoStarsPatch } from "./lib/github";
+import { fetchSkillMarkdown, skillContentPatch } from "./lib/skill-content";
+import {
+  validateAntigravitySkills,
+  type AntigravitySkill as UpstreamSkill,
+} from "../lib/antigravity-source";
 
 const SOURCE_URL =
   "https://raw.githubusercontent.com/sickn33/antigravity-awesome-skills/main/skills_index.json";
 const REPO_TREE_BASE =
   "https://github.com/sickn33/antigravity-awesome-skills/tree/main/";
-
-type UpstreamSkill = {
-  id: string;
-  path: string;
-  category: string;
-  name: string;
-  description: string;
-  risk: string;
-  source: string;
-  date_added: string | null;
-  plugin?: {
-    targets?: { codex?: string; claude?: string };
-    setup?: { type?: string; summary?: string; docs?: string | null };
-    reasons?: string[];
-  };
-};
 
 type InsertSkill = {
   slug: string;
@@ -45,8 +34,8 @@ type InsertSkill = {
   tags: string[];
   author: string;
   github_url: string;
-  skill_md_content: string | null;
-  github_stars: number | null;
+  skill_md_content?: string;
+  github_stars?: number;
   rank: number;
   score: number;
   featured: boolean;
@@ -59,25 +48,17 @@ const githubHeaders: Record<string, string> = env.githubToken
   ? { Authorization: `Bearer ${env.githubToken}` }
   : {};
 
-/** Fetch SKILL.md for a skill path. Returns null on 404 or error. */
-async function fetchSkillMd(path: string): Promise<string | null> {
-  try {
-    const url = `${RAW_BASE}${path}/SKILL.md`;
-    const res = await fetch(url, { headers: githubHeaders });
-    if (!res.ok) return null;
-    // Strip null bytes — PostgreSQL text columns reject \u0000
-    return (await res.text()).replace(/\u0000/g, "");
-  } catch {
-    return null;
-  }
+/** A missing file is omitted; transient failures abort before any upsert. */
+async function fetchSkillMd(path: string): Promise<string | undefined> {
+  return fetchSkillMarkdown(`${RAW_BASE}${path}/SKILL.md`, undefined, githubHeaders);
 }
 
 /** Fetch SKILL.md for all skills with concurrency limit. */
 async function fetchAllSkillMd(
   rows: Array<{ slug: string; path: string }>
-): Promise<Map<string, string | null>> {
+): Promise<Map<string, string | undefined>> {
   const CONCURRENCY = 10;
-  const results = new Map<string, string | null>();
+  const results = new Map<string, string | undefined>();
   for (let i = 0; i < rows.length; i += CONCURRENCY) {
     const batch = rows.slice(i, i + CONCURRENCY);
     const fetched = await Promise.all(
@@ -110,7 +91,11 @@ function deriveTags(upstream: UpstreamSkill): string[] {
   return Array.from(tags).slice(0, 8);
 }
 
-function mapSkill(upstream: UpstreamSkill, skillMd: string | null = null, githubStars: number | null = null): InsertSkill {
+function mapSkill(
+  upstream: UpstreamSkill,
+  skillMd: string | undefined,
+  githubStars: number | undefined,
+): InsertSkill {
   return {
     slug: upstream.id,
     name: idToDisplayName(upstream.name || upstream.id),
@@ -119,8 +104,8 @@ function mapSkill(upstream: UpstreamSkill, skillMd: string | null = null, github
     tags: deriveTags(upstream),
     author: authorFromSource(upstream.source),
     github_url: REPO_TREE_BASE + upstream.path,
-    skill_md_content: skillMd,
-    github_stars: githubStars,
+    ...skillContentPatch(skillMd),
+    ...repoStarsPatch(githubStars),
     rank: 0,
     score: 0,
     featured: false,
@@ -147,12 +132,9 @@ async function fetchUpstream(): Promise<UpstreamSkill[]> {
   if (!res.ok) {
     throw new Error(`Fetch failed: ${res.status} ${res.statusText}`);
   }
-  const json = (await res.json()) as UpstreamSkill[];
-  if (!Array.isArray(json)) {
-    throw new Error("Unexpected payload: top-level is not an array");
-  }
-  console.log(`✓ Fetched ${json.length} skills`);
-  return json;
+  const skills = validateAntigravitySkills(await res.json());
+  console.log(`✓ Fetched ${skills.length} skills`);
+  return skills;
 }
 
 async function upsertBatch(rows: InsertSkill[]): Promise<void> {
@@ -177,21 +159,12 @@ async function main() {
 
   const upstream = await fetchUpstream();
 
-  // Deduplicate by slug — upstream is usually clean but be defensive.
-  const seen = new Set<string>();
-  const deduped: UpstreamSkill[] = [];
-  for (const u of upstream) {
-    if (!u.id || seen.has(u.id)) continue;
-    seen.add(u.id);
-    deduped.push(u);
-  }
-
-  console.log(`→ Fetching SKILL.md for ${deduped.length} skills`);
+  console.log(`→ Fetching SKILL.md for ${upstream.length} skills`);
   const mdMap = await fetchAllSkillMd(
-    deduped.map((u) => ({ slug: u.id, path: u.path }))
+    upstream.map((u) => ({ slug: u.id, path: u.path }))
   );
 
-  const rows: InsertSkill[] = deduped.map((u) => mapSkill(u, mdMap.get(u.id) ?? null, repoStars));
+  const rows: InsertSkill[] = upstream.map((u) => mapSkill(u, mdMap.get(u.id), repoStars));
 
   console.log(`→ Upserting ${rows.length} skills`);
   await upsertBatch(rows);

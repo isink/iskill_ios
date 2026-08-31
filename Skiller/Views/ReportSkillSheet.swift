@@ -1,5 +1,30 @@
 import SwiftUI
 
+enum ReportNotePolicy {
+    static let maxLength = 2_000
+
+    static func length(_ value: String) -> Int {
+        value.unicodeScalars.count
+    }
+
+    static func limited(_ value: String) -> String {
+        var scalarCount = 0
+        var result = ""
+        for character in value {
+            let nextCount = scalarCount + character.unicodeScalars.count
+            guard nextCount <= maxLength else { break }
+            result.append(character)
+            scalarCount = nextCount
+        }
+        return result
+    }
+
+    static func payload(_ value: String) -> String? {
+        let trimmed = limited(value).trimmingCharacters(in: .whitespacesAndNewlines)
+        return trimmed.isEmpty ? nil : trimmed
+    }
+}
+
 struct ReportSkillSheet: View {
     let skill: Skill
     @EnvironmentObject private var auth: AuthService
@@ -17,18 +42,6 @@ struct ReportSkillSheet: View {
             case .other:     return "Other"
             }
         }
-
-        /// Stable English label sent to the backend (so reports remain searchable
-        /// regardless of the reporter's UI language).
-        var apiLabel: String {
-            switch self {
-            case .abuse:     return "Inappropriate content (sexual / violence / discrimination)"
-            case .copyright: return "Copyright infringement"
-            case .malicious: return "Malicious code"
-            case .spam:      return "Spam or low-quality content"
-            case .other:     return "Other"
-            }
-        }
     }
 
     @State private var reason: Reason = .abuse
@@ -36,21 +49,38 @@ struct ReportSkillSheet: View {
     @State private var submitting = false
     @State private var submitted = false
     @State private var error: String? = nil
+    @AccessibilityFocusState private var feedbackFocus: FeedbackFocus?
+
+    private enum FeedbackFocus: Hashable {
+        case error
+        case success
+    }
 
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
                     intro
-                    if submitted {
-                        successCard
-                    } else {
-                        reasonList
-                        noteField
-                        if let msg = error {
-                            Text(msg)
-                                .font(.system(size: 12))
-                                .foregroundStyle(.red)
+                    switch auth.state {
+                    case .unknown:
+                        ProgressView()
+                            .tint(Color.brand)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 32)
+                    case .signedOut:
+                        signInRequiredCard
+                    case .signedIn:
+                        if submitted {
+                            successCard
+                        } else {
+                            reasonList
+                            noteField
+                            if let msg = error {
+                                Text(msg)
+                                    .font(.system(size: 12))
+                                    .foregroundStyle(.red)
+                                    .accessibilityFocused($feedbackFocus, equals: .error)
+                            }
                         }
                     }
                 }
@@ -65,8 +95,9 @@ struct ReportSkillSheet: View {
                 ToolbarItem(placement: .topBarLeading) {
                     Button("Close") { dismiss() }
                         .tint(Color.textSubtle)
+                        .disabled(submitting)
                 }
-                if !submitted {
+                if !submitted, case .signedIn = auth.state {
                     ToolbarItem(placement: .topBarTrailing) {
                         Button {
                             Task { await submit() }
@@ -84,6 +115,7 @@ struct ReportSkillSheet: View {
             }
         }
         .presentationDetents([.medium, .large])
+        .interactiveDismissDisabled(submitting)
     }
 
     private var intro: some View {
@@ -132,6 +164,7 @@ struct ReportSkillSheet: View {
                         .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
+                    .accessibilityAddTraits(reason == r ? .isSelected : [])
                 }
             }
             .background(Color.bgCard)
@@ -142,12 +175,20 @@ struct ReportSkillSheet: View {
 
     private var noteField: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("Additional Notes (Optional)")
-                .font(.system(size: 11, weight: .semibold))
-                .foregroundStyle(Color.textSubtle)
-                .tracking(1.2)
-                .textCase(.uppercase)
-            TextEditor(text: $note)
+            HStack {
+                Text("Additional Notes (Optional)")
+                    .font(.system(size: 11, weight: .semibold))
+                    .tracking(1.2)
+                    .textCase(.uppercase)
+                Spacer()
+                Text("\(ReportNotePolicy.length(note))/\(ReportNotePolicy.maxLength)")
+                    .font(.caption2.monospacedDigit())
+            }
+            .foregroundStyle(Color.textSubtle)
+            TextEditor(text: Binding(
+                get: { note },
+                set: { note = ReportNotePolicy.limited($0) }
+            ))
                 .scrollContentBackground(.hidden)
                 .frame(minHeight: 100)
                 .padding(10)
@@ -156,6 +197,7 @@ struct ReportSkillSheet: View {
                 .clipShape(RoundedRectangle(cornerRadius: 14))
                 .font(.system(size: 14))
                 .foregroundStyle(Color.textPrimary)
+                .accessibilityLabel(Text("Additional Notes (Optional)"))
         }
     }
 
@@ -181,31 +223,73 @@ struct ReportSkillSheet: View {
         .background(Color.bgCard)
         .overlay(RoundedRectangle(cornerRadius: 14).strokeBorder(Color.borderSubtle, lineWidth: 1))
         .clipShape(RoundedRectangle(cornerRadius: 14))
+        .accessibilityElement(children: .combine)
+        .accessibilityFocused($feedbackFocus, equals: .success)
+    }
+
+    private var signInRequiredCard: some View {
+        VStack(spacing: 10) {
+            Image(systemName: "person.crop.circle.badge.exclamationmark")
+                .font(.system(size: 30))
+                .foregroundStyle(Color.brand)
+            Text("Sign in to submit a report")
+                .font(.headline)
+                .foregroundStyle(Color.textPrimary)
+            Text("Open Profile and sign in before reporting a Skill.")
+                .font(.subheadline)
+                .foregroundStyle(Color.textSubtle)
+                .multilineTextAlignment(.center)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(20)
+        .background(Color.bgCard)
+        .overlay(RoundedRectangle(cornerRadius: 14).strokeBorder(Color.borderSubtle, lineWidth: 1))
+        .clipShape(RoundedRectangle(cornerRadius: 14))
     }
 
     @MainActor
     private func submit() async {
+        guard !submitting else { return }
+        guard case .signedIn = auth.state else {
+            error = String(localized: "Sign in to submit a report")
+            feedbackFocus = .error
+            return
+        }
         submitting = true
+        defer { submitting = false }
         error = nil
-        let userId: UUID? = {
-            if case .signedIn(let id) = auth.state { return id.userId }
-            return nil
-        }()
-        let trimmed = note.trimmingCharacters(in: .whitespacesAndNewlines)
         do {
             try await SkillsAPI.submitReport(
                 skillId: skill.id,
-                skillSlug: skill.slug,
-                skillName: skill.name,
-                reason: reason.apiLabel,
-                note: trimmed.isEmpty ? nil : trimmed,
-                userId: userId
+                reason: reason.rawValue,
+                note: ReportNotePolicy.payload(note)
             )
             submitted = true
+            feedbackFocus = .success
+        } catch let submissionError as SkillReportSubmissionError {
+            self.error = message(for: submissionError)
+            feedbackFocus = .error
         } catch {
             print("Report failed: \(error)")
             self.error = String(localized: "Submission failed, please try again later")
+            feedbackFocus = .error
         }
-        submitting = false
+    }
+
+    private func message(for error: SkillReportSubmissionError) -> String {
+        switch error {
+        case .signInRequired:
+            return String(localized: "Your session expired. Please sign in again.")
+        case .duplicate:
+            return String(localized: "You already submitted this report recently.")
+        case .rateLimited:
+            return String(localized: "Too many reports. Please try again in an hour.")
+        case .invalidSkillId, .skillUnavailable:
+            return String(localized: "This Skill is no longer available.")
+        case .noteTooLong:
+            return String(localized: "The report note is too long.")
+        case .unavailable:
+            return String(localized: "Submission failed, please try again later")
+        }
     }
 }

@@ -19,7 +19,6 @@ struct Skill: Codable, Identifiable, Hashable {
     let createdAt: String
     let publishedAt: String?
     let skillMdContent: String?
-    let installCount: Int?
 
     enum CodingKeys: String, CodingKey {
         case id, slug, name, description, category, tags, author, rank, score, featured
@@ -31,7 +30,6 @@ struct Skill: Codable, Identifiable, Hashable {
         case createdAt        = "created_at"
         case publishedAt      = "published_at"
         case skillMdContent   = "skill_md_content"
-        case installCount     = "install_count"
     }
 }
 

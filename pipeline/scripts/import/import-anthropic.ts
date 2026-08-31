@@ -19,7 +19,9 @@ import { env } from "./lib/env";
 import { idToDisplayName } from "./lib/slugify";
 import { mapCategory } from "./lib/category-map";
 import { applyOverrides } from "./lib/overrides";
-import { fetchRepoStars } from "./lib/github";
+import { fetchRepoStars, repoStarsPatch } from "./lib/github";
+import { assertNoBatchFailures } from "../lib/batch-failures";
+import { fetchEarliestCommitDate } from "../lib/commit-history";
 
 const OWNER = "anthropics";
 const REPO = "skills";
@@ -67,15 +69,17 @@ async function listSkillDirs(): Promise<string[]> {
     .map((e) => e.name);
 }
 
-async function fetchFirstCommitDate(dir: string): Promise<string | null> {
-  // GitHub commits API, order=asc + per_page=1 gives the first commit touching this path
-  const url = `https://api.github.com/repos/${OWNER}/${REPO}/commits?path=${dir}&order=asc&per_page=1`;
-  try {
-    const commits = await ghJson<{ commit: { author: { date: string } } }[]>(url);
-    return commits[0]?.commit?.author?.date ?? null;
-  } catch {
-    return null;
-  }
+async function fetchFirstCommitDate(dir: string): Promise<string | undefined> {
+  const path = `${dir}/SKILL.md`;
+  return fetchEarliestCommitDate(async (page, perPage) => {
+    const query = new URLSearchParams({
+      path,
+      per_page: String(perPage),
+      page: String(page),
+    });
+    const url = `https://api.github.com/repos/${OWNER}/${REPO}/commits?${query}`;
+    return ghJson<unknown>(url);
+  });
 }
 
 async function fetchSkillMd(dir: string): Promise<string | null> {
@@ -161,6 +165,7 @@ async function main() {
 
   let imported = 0;
   let skipped = 0;
+  let failed = 0;
 
   for (const dir of dirs) {
     const [md, publishedAt] = await Promise.all([
@@ -205,7 +210,7 @@ async function main() {
       author: "anthropics",
       github_url: `https://github.com/${OWNER}/${REPO}/tree/${BRANCH}/${dir}`,
       skill_md_content: md,
-      github_stars: repoStars,
+      ...repoStarsPatch(repoStars),
       rank: 80, // baseline for official skills; sources.json can override
       score: 95,
       featured: true,
@@ -217,7 +222,7 @@ async function main() {
       .upsert(row, { onConflict: "slug" });
     if (error) {
       console.error(`  ✖ ${slug}: ${error.message}`);
-      skipped++;
+      failed++;
       continue;
     }
 
@@ -226,7 +231,9 @@ async function main() {
   }
 
   process.stdout.write("\n");
-  console.log(`✓ Imported ${imported} skills, skipped ${skipped}`);
+  console.log(`✓ Imported ${imported} skills, skipped ${skipped}, failed ${failed}`);
+
+  assertNoBatchFailures("skill upsert", failed);
 
   await applyOverrides();
   console.log("\n✅ Done. Official Anthropic skills are live.");

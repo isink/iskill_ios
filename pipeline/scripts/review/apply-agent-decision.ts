@@ -38,6 +38,20 @@ type SkillPackage = {
   md: string;
 };
 
+type SubmissionSkillRow = {
+  slug: string;
+  name: string;
+  description: string;
+  category: string;
+  tags: string[];
+  author: string;
+  github_url: string;
+  skill_md_content: string;
+  rank: number;
+  score: number;
+  featured: boolean;
+};
+
 const VALIDATOR_BIN = process.env.SKILL_VALIDATOR_BIN || "skill-validator";
 
 function parseRepoUrl(url: string): { owner: string; repo: string } | null {
@@ -182,7 +196,7 @@ function parseFrontmatter(md: string): { frontmatter: Frontmatter; body: string 
   return { frontmatter: fm, body };
 }
 
-async function upsertSkill(pkg: SkillPackage, owner: string, repo: string): Promise<void> {
+function makeSkillRow(pkg: SkillPackage, owner: string, repo: string): SubmissionSkillRow {
   const { frontmatter, body } = parseFrontmatter(pkg.md);
   const slugBase = pkg.relativePath || repo;
   const slug = toSlug(`${owner}-${slugBase}`);
@@ -204,7 +218,7 @@ async function upsertSkill(pkg: SkillPackage, owner: string, repo: string): Prom
   const githubUrl = pkg.relativePath
     ? `https://github.com/${owner}/${repo}/tree/HEAD/${pkg.relativePath}`
     : `https://github.com/${owner}/${repo}`;
-  const row = {
+  return {
     slug,
     name,
     description,
@@ -217,21 +231,28 @@ async function upsertSkill(pkg: SkillPackage, owner: string, repo: string): Prom
     score: 70,
     featured: false,
   };
-  const { error } = await db.from("skills").upsert(row, { onConflict: "slug" });
-  if (error) throw new Error(`upsert skills: ${error.message}`);
+}
+
+async function applyDecision(
+  row: SubmissionRow,
+  decision: "approve" | "reject",
+  reviewerNote: string,
+  health: unknown,
+  skillRows: SubmissionSkillRow[] = [],
+): Promise<void> {
+  const { error } = await db.rpc("apply_submission_decision", {
+    p_submission_id: row.id,
+    p_decision: decision,
+    p_reviewer_note: reviewerNote,
+    p_health: health,
+    p_skill_rows: skillRows,
+  });
+  if (error) throw new Error(`apply submission decision: ${error.message}`);
 }
 
 async function applyReject(row: SubmissionRow): Promise<void> {
   const note = (row.agent_reason || "").slice(0, 2000) || "rejected by review-agent";
-  const { error } = await db
-    .from("submissions")
-    .update({
-      status: "rejected",
-      reviewer_note: note,
-      reviewed_at: new Date().toISOString(),
-    })
-    .eq("id", row.id);
-  if (error) throw new Error(`update rejected: ${error.message}`);
+  await applyDecision(row, "reject", note, null);
   console.log(`  ✖ ${row.id}: applied REJECT — ${note}`);
 }
 
@@ -263,10 +284,6 @@ async function applyApprove(row: SubmissionRow): Promise<void> {
       }
     }
 
-    for (const pkg of packages) {
-      await upsertSkill(pkg, owner, repo);
-    }
-
     const health = {
       reviewedAt: new Date().toISOString(),
       validator: VALIDATOR_BIN,
@@ -274,16 +291,14 @@ async function applyApprove(row: SubmissionRow): Promise<void> {
       packages: reports,
     };
 
-    const { error } = await db
-      .from("submissions")
-      .update({
-        status: "approved",
-        reviewer_note: (row.agent_reason || "").slice(0, 2000) || null,
-        reviewed_at: new Date().toISOString(),
-        health,
-      })
-      .eq("id", row.id);
-    if (error) throw new Error(`update approved: ${error.message}`);
+    const skillRows = packages.map((pkg) => makeSkillRow(pkg, owner, repo));
+    await applyDecision(
+      row,
+      "approve",
+      (row.agent_reason || "").slice(0, 2000),
+      health,
+      skillRows,
+    );
 
     console.log(`  ✓ ${row.id}: applied APPROVE — ${packages.length} skill(s) from ${owner}/${repo}`);
   } finally {

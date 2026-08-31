@@ -41,6 +41,8 @@ struct SkillDetailView: View {
                             .foregroundStyle(Color.textMuted)
                     }
                 }
+            }
+            if skill != nil {
                 ToolbarItem(placement: .topBarTrailing) {
                     Menu {
                         Button {

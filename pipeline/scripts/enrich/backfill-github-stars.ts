@@ -15,20 +15,18 @@
 
 import "dotenv/config";
 import { db } from "../import/lib/supabase";
+import { assertNoBatchFailures } from "../lib/batch-failures";
+import { parseOptionalPositiveInteger } from "../lib/env-number";
+import { nextPageSize } from "../lib/pagination";
+import { boundedRetryDelayMs } from "../lib/rate-limit";
+import { parseGitHubRepositoryURL } from "../lib/github-url";
 
-const LIMIT = process.env.LIMIT ? parseInt(process.env.LIMIT, 10) : undefined;
+const LIMIT = parseOptionalPositiveInteger("LIMIT", process.env.LIMIT);
 const token = process.env.GITHUB_TOKEN;
 
 type Row = { id: string; github_url: string | null };
 
-function parseOwnerRepo(url: string | null): { owner: string; repo: string } | null {
-  if (!url) return null;
-  const m = url.match(/github\.com\/([^/]+)\/([^/]+)/);
-  if (!m) return null;
-  return { owner: m[1], repo: m[2].replace(/\.git$/, "") };
-}
-
-async function fetchStars(owner: string, repo: string): Promise<number | null> {
+async function fetchStars(owner: string, repo: string, attempt = 0): Promise<number | null> {
   const res = await fetch(`https://api.github.com/repos/${owner}/${repo}`, {
     headers: {
       Accept: "application/vnd.github+json",
@@ -41,16 +39,22 @@ async function fetchStars(owner: string, repo: string): Promise<number | null> {
     const waitMs = reset
       ? Math.max(0, parseInt(reset, 10) * 1000 - Date.now()) + 1000
       : 60_000;
-    console.warn(`  ⚠ rate limited, sleeping ${Math.ceil(waitMs / 1000)}s`);
-    await new Promise((r) => setTimeout(r, waitMs));
-    return fetchStars(owner, repo);
+    const delayMs = boundedRetryDelayMs(attempt, waitMs);
+    if (delayMs === undefined) {
+      throw new Error(`GitHub API ${res.status} after ${attempt + 1} attempts`);
+    }
+    console.warn(`  ⚠ rate limited, sleeping ${Math.ceil(delayMs / 1000)}s`);
+    await new Promise((resolve) => setTimeout(resolve, delayMs));
+    return fetchStars(owner, repo, attempt + 1);
   }
   if (!res.ok) {
-    console.warn(`  ⚠ ${owner}/${repo}: HTTP ${res.status}`);
-    return null;
+    throw new Error(`GitHub API ${res.status} ${res.statusText}: ${owner}/${repo}`);
   }
   const data = (await res.json()) as { stargazers_count?: number };
-  return typeof data.stargazers_count === "number" ? data.stargazers_count : null;
+  if (typeof data.stargazers_count !== "number") {
+    throw new Error(`GitHub API returned no star count: ${owner}/${repo}`);
+  }
+  return data.stargazers_count;
 }
 
 async function main() {
@@ -58,21 +62,19 @@ async function main() {
   const PAGE = 1000;
   let offset = 0;
   while (true) {
+    const requestSize = nextPageSize(PAGE, rows.length, LIMIT);
+    if (requestSize === 0) break;
     const { data, error } = await db
       .from("skills")
       .select("id, github_url")
       .is("github_stars", null)
       .order("id", { ascending: true })
-      .range(offset, offset + PAGE - 1);
+      .range(offset, offset + requestSize - 1);
     if (error) throw error;
     const batch = (data ?? []) as Row[];
     rows.push(...batch);
-    if (batch.length < PAGE) break;
-    if (LIMIT && rows.length >= LIMIT) {
-      rows.length = LIMIT;
-      break;
-    }
-    offset += PAGE;
+    if (batch.length < requestSize) break;
+    offset += requestSize;
   }
   console.log(`→ Found ${rows.length} skills with NULL github_stars`);
 
@@ -80,7 +82,7 @@ async function main() {
   const groups = new Map<string, { key: { owner: string; repo: string }; ids: string[] }>();
   const unparsed: string[] = [];
   for (const r of rows) {
-    const k = parseOwnerRepo(r.github_url);
+    const k = parseGitHubRepositoryURL(r.github_url);
     if (!k) {
       unparsed.push(r.id);
       continue;
@@ -96,6 +98,7 @@ async function main() {
   let done = 0;
   let updated = 0;
   let missing = 0;
+  let failed = 0;
 
   for (const [key, { key: { owner, repo }, ids }] of groups) {
     done++;
@@ -114,6 +117,7 @@ async function main() {
       .in("id", ids);
     if (updErr) {
       console.error(`\n  ✖ update ${key}: ${updErr.message}`);
+      failed++;
       continue;
     }
     updated += ids.length;
@@ -122,7 +126,8 @@ async function main() {
   }
 
   process.stdout.write("\n");
-  console.log(`✅ Done. Updated ${updated} rows across ${groups.size - missing} repos (${missing} repos unreachable/deleted)`);
+  console.log(`✅ Done. Updated ${updated} rows across ${groups.size - missing} repos (${missing} repos deleted, ${failed} writes failed)`);
+  assertNoBatchFailures("star backfill", failed);
 }
 
 main().catch((err) => {

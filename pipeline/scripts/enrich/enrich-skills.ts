@@ -1,16 +1,16 @@
 /**
- * Enrich skills with Chinese descriptions and use-case tags using Claude API.
+ * Enrich skills with Chinese descriptions and use-case tags using DeepSeek.
  *
  * For each skill that is missing description_zh or has empty use_cases,
- * we call Claude haiku to generate:
+ * we call DeepSeek Chat to generate:
  *   - description_zh: 50-80 char Chinese summary
  *   - use_cases: 3-5 short Chinese scenario tags (e.g. "代码审查", "文档生成")
  *
  * Usage:
- *   ANTHROPIC_API_KEY=sk-... npm run enrich:skills
+ *   DEEPSEEK_API_KEY=sk-... npm run enrich:skills
  *
  * Env vars:
- *   ANTHROPIC_API_KEY  — required
+ *   DEEPSEEK_API_KEY   — required
  *   SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY — required (from .env)
  *   BATCH_SIZE         — optional, default 5 (parallel requests per round)
  *   LIMIT              — optional, max skills to process (for testing)
@@ -18,9 +18,19 @@
 
 import "dotenv/config";
 import { db } from "../import/lib/supabase";
+import { assertNoBatchFailures } from "../lib/batch-failures";
+import {
+  enrichmentNeeds,
+  preservedUseCaseSide,
+  validateEnrichmentForExisting,
+  type Enrichment,
+  type ExistingEnrichment,
+} from "../lib/enrichment";
+import { parseOptionalPositiveInteger, parsePositiveInteger } from "../lib/env-number";
+import { collectKeysetPages } from "../lib/pagination";
 
-const BATCH_SIZE = parseInt(process.env.BATCH_SIZE ?? "5", 10);
-const LIMIT = process.env.LIMIT ? parseInt(process.env.LIMIT, 10) : undefined;
+const BATCH_SIZE = parsePositiveInteger("BATCH_SIZE", process.env.BATCH_SIZE, 5);
+const LIMIT = parseOptionalPositiveInteger("LIMIT", process.env.LIMIT);
 
 const apiKey = process.env.DEEPSEEK_API_KEY;
 if (!apiKey) {
@@ -28,18 +38,13 @@ if (!apiKey) {
   process.exit(1);
 }
 
-type SkillRow = {
+type SkillRow = ExistingEnrichment & {
   id: string;
   name: string;
   description: string;
   skill_md_content: string | null;
-};
-
-type Enrichment = {
-  description_zh: string;
-  use_cases: string[];
-  use_cases_en: string[];
-  skill_md_summary_zh: string;
+  updated_at: string;
+  github_stars: number | null;
 };
 
 async function enrichOne(skill: SkillRow): Promise<Enrichment> {
@@ -47,6 +52,12 @@ async function enrichOne(skill: SkillRow): Promise<Enrichment> {
     ? skill.skill_md_content.replace(/^---[\s\S]*?---\n?/, "").trimStart()
     : "";
   const context = Array.from(mdBody).slice(0, 800).join("");
+  const preservedUseCases = preservedUseCaseSide(skill);
+  const useCaseInstruction = preservedUseCases?.field === "use_cases"
+    ? `use_cases 必须逐项原样输出 ${JSON.stringify(preservedUseCases.values)}，只为这些中文标签生成一一对应的 use_cases_en。`
+    : preservedUseCases?.field === "use_cases_en"
+    ? `use_cases_en 必须逐项原样输出 ${JSON.stringify(preservedUseCases.values)}，只为这些英文标签生成一一对应的 use_cases。`
+    : "use_cases 与 use_cases_en 必须逐项一一对应。";
 
   const prompt = `你是一个技术文案专家，帮助用户了解 Claude AI 的技能插件，输出双语内容。
 
@@ -59,6 +70,8 @@ ${context ? `\n技能内容（节选）：\n${context}` : ""}
 2. use_cases：3-5 个中文使用场景短标签（每个 4-8 个字），描述用户会在什么情况下用到这个技能
 3. use_cases_en：use_cases 的英文版，3-5 个 Title Case 短标签（每个 1-3 个英文单词），与中文版语义对应
 4. skill_md_summary_zh：150-250 字的中文摘要，面向中文用户介绍这个技能的完整功能、使用方式和适用场景，语言流畅易懂
+
+${useCaseInstruction}
 
 只输出 JSON，格式如下：
 {"description_zh":"...","use_cases":["...","...","..."],"use_cases_en":["...","...","..."],"skill_md_summary_zh":"..."}`;
@@ -76,49 +89,72 @@ ${context ? `\n技能内容（节选）：\n${context}` : ""}
     }),
   });
   if (!res.ok) throw new Error(`DeepSeek ${res.status}: ${await res.text()}`);
-  const json = await res.json() as { choices: { message: { content: string } }[] };
-  const text = json.choices[0].message.content.trim();
+  const json = await res.json() as { choices?: { message?: { content?: unknown } }[] };
+  const content = json.choices?.[0]?.message?.content;
+  if (typeof content !== "string" || !content.trim()) {
+    throw new Error("DeepSeek response did not contain message content");
+  }
+  const text = content.trim();
   // Extract JSON even if wrapped in markdown code block
   const jsonMatch = text.match(/\{[\s\S]*\}/);
   if (!jsonMatch) throw new Error(`No JSON in response: ${text}`);
-  const parsed = JSON.parse(jsonMatch[0]) as Enrichment;
-
-  if (
-    !parsed.description_zh ||
-    !Array.isArray(parsed.use_cases) ||
-    !Array.isArray(parsed.use_cases_en) ||
-    !parsed.skill_md_summary_zh
-  ) {
-    throw new Error(`Unexpected shape: ${text}`);
-  }
-  return parsed;
+  return validateEnrichmentForExisting(JSON.parse(jsonMatch[0]), skill);
 }
 
 async function fetchPendingSkills(): Promise<SkillRow[]> {
-  let query = db
-    .from("skills")
-    .select("id, name, description, skill_md_content")
-    .or("description_zh.is.null,use_cases.eq.{},use_cases_en.eq.{},skill_md_summary_zh.is.null")
-    .order("github_stars", { ascending: false, nullsFirst: false });
+  const pageSize = 1_000;
+  const all = await collectKeysetPages(
+    pageSize,
+    async (afterId, size): Promise<SkillRow[]> => {
+      let query = db
+      .from("skills")
+      .select(`
+        id,
+        name,
+        description,
+        skill_md_content,
+        updated_at,
+        github_stars,
+        description_zh,
+        use_cases,
+        use_cases_en,
+        skill_md_summary_zh
+      `)
+      .order("id")
+      .limit(size);
+      if (afterId !== undefined) query = query.gt("id", afterId);
+      const { data, error } = await query;
+      if (error) throw error;
+      return (data ?? []) as SkillRow[];
+    },
+    (skill) => skill.id,
+  );
 
-  if (LIMIT) query = query.limit(LIMIT);
-
-  const { data, error } = await query;
-  if (error) throw error;
-  return (data ?? []) as SkillRow[];
+  const pending = all
+    .filter((skill) => {
+      const needs = enrichmentNeeds(skill);
+      return needs.descriptionZh || needs.useCasePair || needs.summaryZh;
+    })
+    .sort((left, right) =>
+      (right.github_stars ?? -1) - (left.github_stars ?? -1)
+        || left.id.localeCompare(right.id)
+    );
+  return LIMIT ? pending.slice(0, LIMIT) : pending;
 }
 
-async function updateSkill(id: string, enrichment: Enrichment): Promise<void> {
-  const { error } = await db
-    .from("skills")
-    .update({
-      description_zh: enrichment.description_zh,
-      use_cases: enrichment.use_cases,
-      use_cases_en: enrichment.use_cases_en,
-      skill_md_summary_zh: enrichment.skill_md_summary_zh,
-    })
-    .eq("id", id);
-  if (error) throw error;
+async function updateSkill(skill: SkillRow, enrichment: Enrichment): Promise<void> {
+  const { data, error } = await db.rpc("fill_skill_enrichment", {
+    p_skill_id: skill.id,
+    p_source_updated_at: skill.updated_at,
+    p_description_zh: enrichment.description_zh,
+    p_use_cases: enrichment.use_cases,
+    p_use_cases_en: enrichment.use_cases_en,
+    p_skill_md_summary_zh: enrichment.skill_md_summary_zh,
+  });
+  if (error) throw new Error(`fill skill enrichment: ${error.message}`);
+  if (data !== true) {
+    throw new Error("source changed during enrichment; retry required");
+  }
 }
 
 async function main() {
@@ -139,7 +175,7 @@ async function main() {
       batch.map(async (skill) => {
         try {
           const enrichment = await enrichOne(skill);
-          await updateSkill(skill.id, enrichment);
+          await updateSkill(skill, enrichment);
           done++;
         } catch (err) {
           failed++;
@@ -152,6 +188,7 @@ async function main() {
 
   process.stdout.write("\n");
   console.log(`\n✅ Done. ${done} enriched, ${failed} failed.`);
+  assertNoBatchFailures("skill enrichment", failed);
 }
 
 main().catch((err) => {

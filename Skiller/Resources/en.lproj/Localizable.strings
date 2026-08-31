@@ -102,6 +102,14 @@
 // SkillDetailView
 "Skill not found" = "Skill not found";
 "Report this skill" = "Report this skill";
+"Sign in to submit a report" = "Sign in to submit a report";
+"Open Profile and sign in before reporting a Skill." = "Open Profile and sign in before reporting a Skill.";
+"Submission failed, please try again later" = "Submission failed. Please try again later.";
+"Your session expired. Please sign in again." = "Your session expired. Please sign in again.";
+"You already submitted this report recently." = "You already submitted this report recently.";
+"Too many reports. Please try again in an hour." = "Too many reports. Please try again in an hour.";
+"This Skill is no longer available." = "This Skill is no longer available.";
+"The report note is too long." = "The report note is too long.";
 "Source Repository" = "Source Repository";
 "Review the repository instructions before installing third-party code." = "Review the repository instructions before installing third-party code.";
 "View on GitHub" = "View on GitHub";

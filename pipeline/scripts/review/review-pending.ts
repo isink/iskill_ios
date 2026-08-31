@@ -27,6 +27,7 @@ import { join } from "node:path";
 import { db } from "../import/lib/supabase";
 import { idToDisplayName, toSlug } from "../import/lib/slugify";
 import { mapCategory } from "../import/lib/category-map";
+import { assertNoBatchFailures } from "../lib/batch-failures";
 
 type SubmissionRow = {
   id: string;
@@ -46,6 +47,20 @@ type SkillPackage = {
 type ValidatorReport = {
   raw: unknown;
   errors: string[];
+};
+
+type SubmissionSkillRow = {
+  slug: string;
+  name: string;
+  description: string;
+  category: string;
+  tags: string[];
+  author: string;
+  github_url: string;
+  skill_md_content: string;
+  rank: number;
+  score: number;
+  featured: boolean;
 };
 
 const VALIDATOR_BIN = process.env.SKILL_VALIDATOR_BIN || "skill-validator";
@@ -239,11 +254,11 @@ function parseFrontmatter(md: string): { frontmatter: Frontmatter; body: string 
   return { frontmatter: fm, body };
 }
 
-async function upsertSkill(
+function makeSkillRow(
   pkg: SkillPackage,
   owner: string,
   repo: string,
-): Promise<void> {
+): SubmissionSkillRow {
   const { frontmatter, body } = parseFrontmatter(pkg.md);
 
   const slugBase = pkg.relativePath || repo;
@@ -270,7 +285,7 @@ async function upsertSkill(
     ? `https://github.com/${owner}/${repo}/tree/HEAD/${pkg.relativePath}`
     : `https://github.com/${owner}/${repo}`;
 
-  const row = {
+  return {
     slug,
     name,
     description,
@@ -284,43 +299,34 @@ async function upsertSkill(
     featured: false,
   };
 
-  const { error } = await db.from("skills").upsert(row, { onConflict: "slug" });
-  if (error) throw new Error(`upsert skills: ${error.message}`);
 }
 
-async function markApproved(submissionId: string, health: unknown): Promise<void> {
-  const { error } = await db
-    .from("submissions")
-    .update({
-      status: "approved",
-      reviewed_at: new Date().toISOString(),
-      health,
-    })
-    .eq("id", submissionId);
-  if (error) throw new Error(`update submission approved: ${error.message}`);
-}
-
-async function markRejected(
+async function applyDecision(
   submissionId: string,
-  note: string,
+  decision: "approve" | "reject",
+  reviewerNote: string,
   health: unknown,
+  skillRows: SubmissionSkillRow[] = [],
 ): Promise<void> {
-  const { error } = await db
-    .from("submissions")
-    .update({
-      status: "rejected",
-      reviewer_note: note.slice(0, 2000),
-      reviewed_at: new Date().toISOString(),
-      health,
-    })
-    .eq("id", submissionId);
-  if (error) throw new Error(`update submission rejected: ${error.message}`);
+  const { error } = await db.rpc("apply_submission_decision", {
+    p_submission_id: submissionId,
+    p_decision: decision,
+    p_reviewer_note: reviewerNote.slice(0, 2000),
+    p_health: health,
+    p_skill_rows: skillRows,
+  });
+  if (error) throw new Error(`apply submission decision: ${error.message}`);
 }
 
 async function reviewOne(row: SubmissionRow): Promise<void> {
   const parsed = parseRepoUrl(row.github_url);
   if (!parsed) {
-    await markRejected(row.id, `Not a valid GitHub repo URL: ${row.github_url}`, null);
+    await applyDecision(
+      row.id,
+      "reject",
+      `Not a valid GitHub repo URL: ${row.github_url}`,
+      null,
+    );
     console.log(`  ✖ ${row.id}: rejected — bad URL ${row.github_url}`);
     return;
   }
@@ -332,15 +338,14 @@ async function reviewOne(row: SubmissionRow): Promise<void> {
       shallowClone(owner, repo, tmp);
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
-      await markRejected(row.id, `git clone failed: ${msg}`, null);
-      console.log(`  ✖ ${row.id}: rejected — clone failed`);
-      return;
+      throw new Error(`git clone failed: ${msg}`);
     }
 
     const packages = locateSkillPackages(tmp);
     if (packages.length === 0) {
-      await markRejected(
+      await applyDecision(
         row.id,
+        "reject",
         "No SKILL.md found at repo root or in any top-level subdirectory.",
         null,
       );
@@ -352,14 +357,7 @@ async function reviewOne(row: SubmissionRow): Promise<void> {
     let firstError: string | null = null;
 
     for (const pkg of packages) {
-      let report: ValidatorReport;
-      try {
-        report = runValidator(pkg.dir);
-      } catch (e) {
-        const msg = e instanceof Error ? e.message : String(e);
-        firstError = `validator launch error: ${msg}`;
-        report = { raw: null, errors: [msg] };
-      }
+      const report = runValidator(pkg.dir);
       reports.push({ relativePath: pkg.relativePath || "(root)", report });
       if (report.errors.length > 0 && !firstError) {
         firstError = `${pkg.relativePath || "(root)"}: ${report.errors.join("; ")}`;
@@ -377,16 +375,13 @@ async function reviewOne(row: SubmissionRow): Promise<void> {
     };
 
     if (firstError) {
-      await markRejected(row.id, firstError.slice(0, 2000), aggregateHealth);
+      await applyDecision(row.id, "reject", firstError, aggregateHealth);
       console.log(`  ✖ ${row.id}: rejected — ${firstError}`);
       return;
     }
 
-    // All packages passed — ingest each into skills.
-    for (const pkg of packages) {
-      await upsertSkill(pkg, owner, repo);
-    }
-    await markApproved(row.id, aggregateHealth);
+    const skillRows = packages.map((pkg) => makeSkillRow(pkg, owner, repo));
+    await applyDecision(row.id, "approve", "", aggregateHealth, skillRows);
     console.log(
       `  ✓ ${row.id}: approved — ${packages.length} skill(s) ingested from ${owner}/${repo}`,
     );
@@ -410,16 +405,19 @@ async function main(): Promise<void> {
   const rows = (data ?? []) as SubmissionRow[];
   console.log(`→ ${rows.length} pending submission(s)`);
 
+  let failed = 0;
   for (const row of rows) {
     try {
       await reviewOne(row);
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
       console.error(`✖ ${row.id}: review failed — ${msg}`);
+      failed++;
     }
   }
 
-  console.log("✅ Done.");
+  console.log(`✅ Done. ${rows.length - failed} reviewed, ${failed} failed.`);
+  assertNoBatchFailures("submission review", failed);
 }
 
 main().catch((err) => {

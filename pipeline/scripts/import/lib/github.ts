@@ -1,4 +1,7 @@
 import { env } from "./env";
+import { fetchRepoStarsFromGitHub } from "../../lib/repo-stars";
+
+export { repoStarsPatch } from "../../lib/repo-stars";
 
 function authHeaders(): Record<string, string> {
   const h: Record<string, string> = {
@@ -10,16 +13,7 @@ function authHeaders(): Record<string, string> {
   return h;
 }
 
-/** Return the star count for a GitHub repo, or null on error. */
-export async function fetchRepoStars(owner: string, repo: string): Promise<number | null> {
-  try {
-    const res = await fetch(`https://api.github.com/repos/${owner}/${repo}`, {
-      headers: authHeaders(),
-    });
-    if (!res.ok) return null;
-    const data = (await res.json()) as { stargazers_count?: number };
-    return data.stargazers_count ?? null;
-  } catch {
-    return null;
-  }
+/** A missing repo is omitted; request or schema failures abort the import. */
+export async function fetchRepoStars(owner: string, repo: string): Promise<number | undefined> {
+  return fetchRepoStarsFromGitHub(owner, repo, authHeaders());
 }

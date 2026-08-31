@@ -8,6 +8,7 @@
 
 import { db } from "./lib/supabase";
 import { mapCategory } from "./lib/category-map";
+import { assertNoBatchFailures } from "../lib/batch-failures";
 
 type Row = { id: string; slug: string; name: string; description: string };
 
@@ -38,6 +39,7 @@ async function main() {
 
   let updated = 0;
   let stayed = 0;
+  let failed = 0;
 
   for (const row of rows) {
     // Try mapping against slug first, then name, then description words
@@ -60,6 +62,7 @@ async function main() {
 
     if (updateError) {
       console.error(`  ✖ ${row.slug}: ${updateError.message}`);
+      failed++;
       continue;
     }
 
@@ -68,7 +71,8 @@ async function main() {
   }
 
   process.stdout.write("\n");
-  console.log(`\n✅ Done. ${updated} reclassified, ${stayed} remain in misc.`);
+  console.log(`\n✅ Done. ${updated} reclassified, ${stayed} remain in misc, ${failed} failed.`);
+  assertNoBatchFailures("skill reclassification", failed);
 }
 
 main().catch((err) => {
